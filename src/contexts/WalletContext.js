@@ -31,14 +31,33 @@ export const AptosWalletProvider = ({ children }) => {
         const savedAddress = localStorage.getItem('aptospay_account_address');
         const savedWallet = localStorage.getItem('aptospay_wallet_name');
         
-        if (wasConnected === 'true' && savedAddress) {
+        if (wasConnected === 'true' && savedAddress && savedWallet) {
           setIsConnected(true);
           setWalletName(savedWallet);
-          // Create a mock account object with the saved address
-          const mockAccount = {
-            accountAddress: { toString: () => savedAddress }
+          
+          // Try to reconnect to the wallet to get the API
+          let walletApi = null;
+          if (savedWallet === 'Petra' && window.aptos) {
+            try {
+              walletApi = window.aptos;
+            } catch (err) {
+              console.log('Petra wallet not available for restore');
+            }
+          } else if (savedWallet === 'Martian' && window.martian) {
+            try {
+              walletApi = window.martian;
+            } catch (err) {
+              console.log('Martian wallet not available for restore');
+            }
+          }
+          
+          // Create account object with wallet API if available
+          const account = {
+            accountAddress: { toString: () => savedAddress },
+            wallet: savedWallet,
+            walletApi: walletApi
           };
-          setAccount(mockAccount);
+          setAccount(account);
           await getBalance(savedAddress);
         }
       }
@@ -186,8 +205,12 @@ export const AptosWalletProvider = ({ children }) => {
   };
 
   const sendTransaction = async (recipient, amount) => {
-    if (!account || !account.walletApi) {
-      throw new Error('Wallet not connected or wallet API not available');
+    if (!account) {
+      throw new Error('Wallet not connected. Please reconnect your wallet.');
+    }
+
+    if (!account.walletApi) {
+      throw new Error('Wallet API not available. Please disconnect and reconnect your wallet to enable transactions.');
     }
 
     try {
@@ -196,21 +219,51 @@ export const AptosWalletProvider = ({ children }) => {
 
       const amountInOctas = Math.floor(amount * Math.pow(10, 8)); // Convert APT to octas
 
-      // Use the wallet's transaction API
+      // Clean the recipient address (remove 0x prefix if present)
+      const cleanRecipient = recipient.startsWith('0x') ? recipient.slice(2) : recipient;
+
+      // Use the wallet's transaction API with proper format
       const transaction = {
-        arguments: [recipient, amountInOctas.toString()],
+        arguments: [cleanRecipient, amountInOctas.toString()],
         function: "0x1::coin::transfer",
         type: "entry_function_payload",
         type_arguments: ["0x1::aptos_coin::AptosCoin"],
       };
 
-      const result = await account.walletApi.signAndSubmitTransaction(transaction);
+      console.log('Sending transaction:', transaction);
+      console.log('Wallet API available:', !!account.walletApi);
+      console.log('Wallet API methods:', Object.keys(account.walletApi || {}));
+      
+      let result;
+      
+      // Try the wallet's signAndSubmitTransaction method first
+      if (account.walletApi.signAndSubmitTransaction) {
+        console.log('Using signAndSubmitTransaction');
+        result = await account.walletApi.signAndSubmitTransaction(transaction);
+      } 
+      // Try signTransaction + submitTransaction
+      else if (account.walletApi.signTransaction) {
+        console.log('Using signTransaction + submitTransaction');
+        const signedTx = await account.walletApi.signTransaction(transaction);
+        result = await client.submitTransaction({ transaction: signedTx });
+      } 
+      // Try alternative method names
+      else if (account.walletApi.submitTransaction) {
+        console.log('Using submitTransaction');
+        result = await account.walletApi.submitTransaction(transaction);
+      }
+      else {
+        throw new Error(`Wallet does not support transaction signing. Available methods: ${Object.keys(account.walletApi || {}).join(', ')}`);
+      }
+      
+      console.log('Transaction result:', result);
       
       // Refresh balance after successful transaction
       await getBalance(account.accountAddress.toString());
 
-      return result.hash;
+      return result.hash || result;
     } catch (err) {
+      console.error('Transaction error:', err);
       setError('Transaction failed: ' + err.message);
       throw err;
     } finally {

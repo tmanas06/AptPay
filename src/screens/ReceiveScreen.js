@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Alert,
   Share,
-  Clipboard,
+  ScrollView,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,18 +18,35 @@ const ReceiveScreen = () => {
 
   const handleCopyAddress = async () => {
     if (account) {
-      await Clipboard.setString(account.address());
-      Alert.alert('Copied', 'Address copied to clipboard');
+      try {
+        await navigator.clipboard.writeText(account.accountAddress.toString());
+        Alert.alert('Copied', 'Address copied to clipboard');
+      } catch (err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = account.accountAddress.toString();
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        Alert.alert('Copied', 'Address copied to clipboard');
+      }
     }
   };
 
   const handleShareAddress = async () => {
     if (account) {
       try {
-        await Share.share({
-          message: `My AptosPay address: ${account.address()}`,
-          title: 'AptosPay Address',
-        });
+        if (navigator.share) {
+          await navigator.share({
+            text: `My AptosPay address: ${account.accountAddress.toString()}`,
+            title: 'AptosPay Address',
+          });
+        } else {
+          // Fallback: copy to clipboard
+          await navigator.clipboard.writeText(account.accountAddress.toString());
+          Alert.alert('Copied', 'Address copied to clipboard');
+        }
       } catch (err) {
         Alert.alert('Error', 'Failed to share address');
       }
@@ -60,8 +77,8 @@ const ReceiveScreen = () => {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.addressCard}>
           <Text style={styles.cardTitle}>Your AptosPay Address</Text>
-          <Text style={styles.addressText}>{formatAddress(account.address())}</Text>
-          <Text style={styles.fullAddress}>{account.address()}</Text>
+          <Text style={styles.addressText}>{formatAddress(account.accountAddress.toString())}</Text>
+          <Text style={styles.fullAddress}>{account.accountAddress.toString()}</Text>
         </View>
 
         <View style={styles.qrSection}>
@@ -82,7 +99,7 @@ const ReceiveScreen = () => {
           {showQR && (
             <View style={styles.qrContainer}>
               <QRCode
-                value={account.address()}
+                value={account.accountAddress.toString()}
                 size={200}
                 color="#000"
                 backgroundColor="#fff"
@@ -128,7 +145,7 @@ const ReceiveScreen = () => {
         <View style={styles.warningCard}>
           <Ionicons name="warning-outline" size={20} color="#FF9500" />
           <Text style={styles.warningText}>
-            Only send APT tokens to this address. Sending other tokens may result in permanent loss.
+            This address can only receive APT tokens from the Aptos Devnet. Sending tokens from another network will result in loss of funds.
           </Text>
         </View>
       </ScrollView>

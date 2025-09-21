@@ -20,9 +20,10 @@ const SendScreen = ({ navigation }) => {
   const [isValidAddress, setIsValidAddress] = useState(false);
 
   const validateAddress = (address) => {
-    // Basic Aptos address validation (64 character hex string)
+    // Aptos address validation - accepts with or without 0x prefix
+    const cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
     const aptosAddressRegex = /^[0-9a-fA-F]{64}$/;
-    return aptosAddressRegex.test(address);
+    return aptosAddressRegex.test(cleanAddress);
   };
 
   const handleAddressChange = (text) => {
@@ -113,7 +114,7 @@ const SendScreen = ({ navigation }) => {
                   styles.input,
                   recipient && !isValidAddress && styles.inputError
                 ]}
-                placeholder="Enter Aptos address (64 characters)"
+                placeholder="Enter Aptos address (0x... or 64 hex chars)"
                 value={recipient}
                 onChangeText={handleAddressChange}
                 autoCapitalize="none"
@@ -162,7 +163,7 @@ const SendScreen = ({ navigation }) => {
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>Transaction Info</Text>
           <Text style={styles.infoText}>
-            • Transactions are processed on Aptos testnet
+            • Transactions are processed on Aptos devnet
           </Text>
           <Text style={styles.infoText}>
             • Network fees are minimal

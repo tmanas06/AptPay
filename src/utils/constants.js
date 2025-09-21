@@ -1,8 +1,8 @@
 // AptosPay Constants
 
 export const APTOS_CONFIG = {
-  NODE_URL: 'https://fullnode.testnet.aptoslabs.com/v1',
-  FAUCET_URL: 'https://faucet.testnet.aptoslabs.com',
+  NODE_URL: 'https://fullnode.devnet.aptoslabs.com/v1',
+  FAUCET_URL: 'https://faucet.devnet.aptoslabs.com',
   EXPLORER_URL: 'https://explorer.aptoslabs.com',
 };
 

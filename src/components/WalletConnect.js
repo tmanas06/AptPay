@@ -174,10 +174,10 @@ const WalletConnect = () => {
                   <Text style={styles.infoTitle}>How to get started</Text>
                 </View>
                 <Text style={styles.infoText}>
-                  1. Install Petra or Martian wallet extension in your browser{'\n'}
-                  2. Create or import your wallet{'\n'}
-                  3. Switch to Aptos Devnet{'\n'}
-                  4. Click on your preferred wallet above
+                  {`1. Install Petra or Martian wallet extension in your browser
+2. Create or import your wallet
+3. Switch to Aptos Devnet
+4. Click on your preferred wallet above`}
                 </Text>
               </View>
 
