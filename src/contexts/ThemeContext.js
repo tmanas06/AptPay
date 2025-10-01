@@ -118,6 +118,17 @@ export const ThemeProvider = ({ children }) => {
       error: isDarkMode ? '#FF3B30' : '#FF3B30',
       info: isDarkMode ? '#007AFF' : '#007AFF',
       
+      // Additional status colors
+      red: isDarkMode ? '#FF3B30' : '#FF3B30',
+      green: isDarkMode ? '#34C759' : '#34C759',
+      blue: isDarkMode ? '#007AFF' : '#007AFF',
+      secondary: isDarkMode ? '#8e8e93' : '#6c757d',
+      
+      // Background colors for status
+      errorBackground: isDarkMode ? 'rgba(255, 59, 48, 0.1)' : 'rgba(255, 59, 48, 0.1)',
+      successBackground: isDarkMode ? 'rgba(52, 199, 89, 0.1)' : 'rgba(52, 199, 89, 0.1)',
+      warningBackground: isDarkMode ? 'rgba(255, 149, 0, 0.1)' : 'rgba(255, 149, 0, 0.1)',
+      
       // Accent colors for features
       accent1: isDarkMode ? '#6C5CE7' : '#6C5CE7', // Kana Trade
       accent2: isDarkMode ? '#00B894' : '#00B894', // Market Data
