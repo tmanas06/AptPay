@@ -18,6 +18,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import WalletConnect from '../components/WalletConnect';
 import ThemeToggle from '../components/ThemeToggle';
 import { Ionicons } from '@expo/vector-icons';
+import DummyDeFiService from '../services/DummyDeFiService';
 
 const { width } = Dimensions.get('window');
 

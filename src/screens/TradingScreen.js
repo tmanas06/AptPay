@@ -13,6 +13,8 @@ import {
 import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import SmartContractService from '../services/SmartContractService';
+import DummyDeFiService from '../services/DummyDeFiService';
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +28,29 @@ const TradingScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState([]);
 
+  // Test function to verify DummyDeFiService is working
+  const testDummyService = () => {
+    console.log('=== TESTING DUMMY DEFI SERVICE ===');
+    console.log('Service instance:', DummyDeFiService);
+    console.log('Available methods:', Object.getOwnPropertyNames(DummyDeFiService));
+    
+    try {
+      const balance = DummyDeFiService.getBalance();
+      console.log('User balance:', balance);
+      
+      const marketData = DummyDeFiService.getAllMarketData();
+      console.log('Market data:', marketData);
+      
+      const positions = DummyDeFiService.getPositions();
+      console.log('Positions:', positions);
+      
+      Alert.alert('Test Complete', `Balance: ${JSON.stringify(balance)}\nMarkets: ${marketData.length}\nPositions: ${positions.length}`);
+    } catch (error) {
+      console.error('Test error:', error);
+      Alert.alert('Test Error', error.message);
+    }
+  };
+
   const tradingPairs = [
     { symbol: 'APT/USDC', price: 8.45, change: '+2.34%' },
     { symbol: 'BTC/USDC', price: 43250, change: '+1.23%' },
@@ -35,26 +60,64 @@ const TradingScreen = ({ navigation }) => {
   const leverageOptions = [1, 2, 5, 10, 25, 50, 100, 200, 500, 1000];
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && account) {
+      // Set up SmartContractService with the wallet account
+      SmartContractService.setAccount(account);
+      console.log('SmartContractService set up with account:', account.address);
+      
+      // Test DummyDeFiService
+      console.log('Testing DummyDeFiService...');
+      console.log('DummyDeFiService instance:', DummyDeFiService);
+      console.log('DummyDeFiService methods:', Object.getOwnPropertyNames(DummyDeFiService));
+      
       fetchPositions();
+      fetchMarketData();
     }
-  }, [isConnected]);
+  }, [isConnected, account]);
 
   const fetchPositions = async () => {
-    // Mock data - replace with actual API calls
-    setPositions([
-      {
-        id: 1,
-        pair: 'APT/USDC',
-        type: 'long',
-        leverage: 10,
-        entryPrice: 8.2,
-        currentPrice: 8.45,
-        size: 100,
-        pnl: 250,
-        pnlPercent: 3.05,
-      },
-    ]);
+    try {
+      console.log('Fetching positions from DummyDeFiService...');
+      const positions = DummyDeFiService.getPositions();
+      console.log('Raw positions:', positions);
+      
+      // Convert to expected format
+      const formattedPositions = positions.map(pos => ({
+        id: pos.id,
+        pair: pos.symbol,
+        type: pos.positionType.toLowerCase(),
+        leverage: pos.leverage,
+        entryPrice: pos.entryPrice,
+        currentPrice: pos.currentPrice,
+        size: pos.amount,
+        pnl: pos.pnl,
+        pnlPercent: pos.pnlPercentage,
+        status: pos.status
+      }));
+      console.log('Formatted positions:', formattedPositions);
+      setPositions(formattedPositions);
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+      setPositions([]);
+    }
+  };
+
+  const fetchMarketData = async () => {
+    try {
+      console.log('Fetching market data from DummyDeFiService...');
+      const marketData = DummyDeFiService.getAllMarketData();
+      console.log('Raw market data:', marketData);
+      
+      const formattedPairs = marketData.map(data => ({
+        symbol: data.symbol,
+        price: data.price,
+        change: `${data.change24h > 0 ? '+' : ''}${data.change24h.toFixed(2)}%`
+      }));
+      console.log('Formatted trading pairs:', formattedPairs);
+      setTradingPairs(formattedPairs);
+    } catch (error) {
+      console.error('Error fetching market data:', error);
+    }
   };
 
   const handleTrade = async () => {
@@ -70,18 +133,40 @@ const TradingScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      // Mock trade execution - replace with actual smart contract calls
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const amountNum = parseFloat(amount);
+      const positionTypeUpper = positionType.toUpperCase();
       
-      Alert.alert(
-        'Trade Executed',
-        `Successfully opened ${positionType} position for ${amount} ${selectedPair.split('/')[0]} with ${leverage}x leverage`
+      console.log('Opening position with DummyDeFiService:', {
+        selectedPair,
+        positionTypeUpper,
+        amountNum,
+        leverage
+      });
+      
+      // Open position using dummy DeFi service
+      const result = DummyDeFiService.openPosition(
+        selectedPair,
+        positionTypeUpper,
+        amountNum,
+        leverage
       );
-      
-      setAmount('');
-      fetchPositions();
+
+      console.log('Position result:', result);
+
+      if (result.success) {
+        Alert.alert(
+          'Trade Executed',
+          `Successfully opened ${positionType} position for ${amount} ${selectedPair.split('/')[0]} with ${leverage}x leverage\n\nTransaction: ${result.transactionHash.slice(0, 10)}...`
+        );
+        
+        setAmount('');
+        fetchPositions(); // Refresh positions
+      } else {
+        Alert.alert('Error', result.message || 'Failed to execute trade');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to execute trade');
+      console.error('Trade error:', error);
+      Alert.alert('Error', error.message || 'Failed to execute trade');
     } finally {
       setLoading(false);
     }
@@ -89,12 +174,20 @@ const TradingScreen = ({ navigation }) => {
 
   const closePosition = async (positionId) => {
     try {
-      // Mock position closure
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      Alert.alert('Success', 'Position closed successfully');
-      fetchPositions();
+      const result = DummyDeFiService.closePosition(positionId);
+      
+      if (result.success) {
+        Alert.alert(
+          'Position Closed',
+          `Position closed successfully!\n\nPnL: $${result.pnl.toFixed(2)}\nTransaction: ${result.transactionHash.slice(0, 10)}...`
+        );
+        fetchPositions(); // Refresh positions
+      } else {
+        Alert.alert('Error', result.message || 'Failed to close position');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to close position');
+      console.error('Close position error:', error);
+      Alert.alert('Error', error.message || 'Failed to close position');
     }
   };
 
@@ -133,6 +226,14 @@ const TradingScreen = ({ navigation }) => {
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <Text style={[styles.title, { color: colors.text }]}>Leveraged Trading</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Trade with up to 1000x leverage</Text>
+        
+        {/* Test Button */}
+        <TouchableOpacity
+          style={[styles.testButton, { backgroundColor: colors.primary }]}
+          onPress={testDummyService}
+        >
+          <Text style={styles.testButtonText}>Test Dummy Service</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Trading Pairs */}
@@ -493,6 +594,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  testButton: {
+    marginTop: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+  testButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

@@ -12,6 +12,8 @@ import {
 import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import SmartContractService from '../services/SmartContractService';
+import DummyDeFiService from '../services/DummyDeFiService';
 
 const AMMScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
@@ -39,36 +41,34 @@ const AMMScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && account) {
+      // Set up SmartContractService with the wallet account
+      SmartContractService.setAccount(account);
+      console.log('SmartContractService set up with account:', account.address);
       fetchPools();
       fetchUserLiquidity();
     }
-  }, [isConnected]);
+  }, [isConnected, account]);
 
   const fetchPools = async () => {
-    // Mock data - replace with actual API calls
-    setPools([
-      {
-        id: 1,
-        pair: 'APT/USDC',
-        liquidity: 1250000,
-        volume24h: 45000,
-        fee24h: 1350,
-        apr: 12.5,
-        token0: { symbol: 'APT', amount: 150000 },
-        token1: { symbol: 'USDC', amount: 1250000 },
-      },
-      {
-        id: 2,
-        pair: 'BTC/USDC',
-        liquidity: 850000,
-        volume24h: 32000,
-        fee24h: 960,
-        apr: 8.7,
-        token0: { symbol: 'BTC', amount: 20 },
-        token1: { symbol: 'USDC', amount: 850000 },
-      },
-    ]);
+    try {
+      const pools = DummyDeFiService.getPools();
+      // Convert to expected format
+      const formattedPools = pools.map(pool => ({
+        id: pool.id,
+        pair: `${pool.tokenA}/${pool.tokenB}`,
+        liquidity: pool.totalLiquidity,
+        volume24h: pool.volume24h,
+        fee24h: pool.volume24h * pool.fee,
+        apr: (pool.volume24h * pool.fee * 365) / pool.totalLiquidity * 100,
+        token0: { symbol: pool.tokenA, amount: pool.amountA },
+        token1: { symbol: pool.tokenB, amount: pool.amountB },
+      }));
+      setPools(formattedPools);
+    } catch (error) {
+      console.error('Error fetching pools:', error);
+      setPools([]);
+    }
   };
 
   const fetchUserLiquidity = async () => {

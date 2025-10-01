@@ -13,6 +13,7 @@ import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import KanaTradingService from '../services/KanaTradingService';
+import SmartContractService from '../services/SmartContractService';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +29,8 @@ const MarketDataScreen = ({ navigation }) => {
   const [candlestickData, setCandlestickData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [timeframe, setTimeframe] = useState(3600); // 1 hour default
+  const [liveData, setLiveData] = useState(null);
+  const [isLive, setIsLive] = useState(false);
 
   const tabs = [
     { id: 'markets', label: 'Markets', icon: 'list' },
@@ -45,10 +48,13 @@ const MarketDataScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && account) {
+      // Set up SmartContractService with the wallet account
+      SmartContractService.setAccount(account);
+      console.log('SmartContractService set up with account:', account.address);
       loadMarkets();
     }
-  }, [isConnected]);
+  }, [isConnected, account]);
 
   useEffect(() => {
     if (selectedMarket) {
@@ -56,18 +62,72 @@ const MarketDataScreen = ({ navigation }) => {
       loadOrderBook();
       loadTrades();
       loadCandlestickData();
+      
+      // Start live data subscription
+      startLiveData();
     }
+    
+    return () => {
+      // Cleanup live data subscription
+      stopLiveData();
+    };
   }, [selectedMarket, timeframe]);
+
+  // Live data subscription
+  const startLiveData = () => {
+    if (!selectedMarket) return;
+    
+    console.log('Starting live data for market:', selectedMarket.marketId);
+    setIsLive(true);
+    
+    const unsubscribe = KanaTradingService.subscribeToMarketData(
+      selectedMarket.marketId,
+      (data) => {
+        console.log('Received live data update:', data);
+        setLiveData(data);
+        
+        // Update individual data states
+        if (data.price) {
+          setMarketData(data.price);
+        }
+        if (data.orderBook) {
+          setOrderBook(data.orderBook);
+        }
+        if (data.trades) {
+          setTrades(data.trades);
+        }
+      }
+    );
+    
+    // Store unsubscribe function
+    window.liveDataUnsubscribe = unsubscribe;
+  };
+
+  const stopLiveData = () => {
+    console.log('Stopping live data subscription');
+    setIsLive(false);
+    if (window.liveDataUnsubscribe) {
+      window.liveDataUnsubscribe();
+      window.liveDataUnsubscribe = null;
+    }
+  };
 
   const loadMarkets = async () => {
     try {
+      console.log('=== LOADING MARKETS ===');
       setLoading(true);
       const response = await KanaTradingService.getAvailableMarkets();
+      console.log('Markets response:', response);
+      
       if (response.status === 'OK') {
         setMarkets(response.data);
+        console.log('Markets loaded:', response.data.length, 'markets');
         if (response.data.length > 0) {
           setSelectedMarket(response.data[0]);
+          console.log('Selected market:', response.data[0]);
         }
+      } else {
+        console.error('Markets response not OK:', response);
       }
     } catch (error) {
       console.error('Failed to load markets:', error);
@@ -80,9 +140,17 @@ const MarketDataScreen = ({ navigation }) => {
     if (!selectedMarket) return;
     
     try {
+      console.log('=== LOADING MARKET DATA ===');
+      console.log('Market ID:', selectedMarket.marketId);
       const response = await KanaTradingService.getMarketPrice(selectedMarket.marketId);
+      console.log('Market data response:', response);
+      
       if (response.status === 'OK') {
-        setMarketData(KanaTradingService.formatMarketData(response.data));
+        const formattedData = KanaTradingService.formatMarketData(response.data);
+        console.log('Formatted market data:', formattedData);
+        setMarketData(formattedData);
+      } else {
+        console.error('Market data response not OK:', response);
       }
     } catch (error) {
       console.error('Failed to load market data:', error);
@@ -93,9 +161,16 @@ const MarketDataScreen = ({ navigation }) => {
     if (!selectedMarket) return;
     
     try {
+      console.log('=== LOADING ORDER BOOK ===');
       const response = await KanaTradingService.getOrderBook(selectedMarket.marketId);
+      console.log('Order book response:', response);
+      
       if (response.status === 'OK') {
-        setOrderBook(KanaTradingService.formatOrderBook(response.data));
+        const formattedData = KanaTradingService.formatOrderBook(response.data);
+        console.log('Formatted order book:', formattedData);
+        setOrderBook(formattedData);
+      } else {
+        console.error('Order book response not OK:', response);
       }
     } catch (error) {
       console.error('Failed to load order book:', error);
@@ -188,6 +263,13 @@ const MarketDataScreen = ({ navigation }) => {
       
       {marketData && (
         <View style={styles.priceData}>
+          {liveData && (
+            <View style={styles.lastUpdateRow}>
+              <Text style={styles.lastUpdateText}>
+                Last updated: {new Date(liveData.timestamp).toLocaleTimeString()}
+              </Text>
+            </View>
+          )}
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>Best Bid</Text>
             <Text style={[styles.priceValue, styles.bidPrice]}>
@@ -383,8 +465,33 @@ const MarketDataScreen = ({ navigation }) => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Market Data</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Real-time market information</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={[styles.title, { color: colors.text }]}>Market Data</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Real-time market information</Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={[styles.refreshButton, { backgroundColor: colors.primary }]}
+              onPress={() => {
+                console.log('Manual refresh triggered');
+                if (selectedMarket) {
+                  loadMarketData();
+                  loadOrderBook();
+                  loadTrades();
+                }
+              }}
+            >
+              <Ionicons name="refresh" size={16} color="white" />
+            </TouchableOpacity>
+            <View style={styles.liveIndicator}>
+              <View style={[styles.liveDot, { backgroundColor: isLive ? colors.green : colors.textSecondary }]} />
+              <Text style={[styles.liveText, { color: isLive ? colors.green : colors.textSecondary }]}>
+                {isLive ? 'LIVE' : 'OFFLINE'}
+              </Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       {/* Market Overview */}
@@ -440,9 +547,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    
     borderBottomWidth: 1,
-    
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  liveText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  refreshButton: {
+    padding: 8,
+    borderRadius: 8,
   },
   title: {
     fontSize: 28,
@@ -482,6 +620,17 @@ const styles = StyleSheet.create({
   },
   priceData: {
     gap: 8,
+  },
+  lastUpdateRow: {
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    marginBottom: 8,
+  },
+  lastUpdateText: {
+    fontSize: 12,
+    color: '#6c757d',
+    textAlign: 'center',
   },
   priceRow: {
     flexDirection: 'row',

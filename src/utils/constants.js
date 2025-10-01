@@ -10,7 +10,27 @@ export const CONTRACT_CONFIG = {
   MODULE_NAME: 'AptosPay',
   FUNCTION_NAME: 'send',
   // Update this with your deployed contract address
-  CONTRACT_ADDRESS: '0x1', // Replace with actual deployed address
+  CONTRACT_ADDRESS: '0xa561992c5d672fc0d6eb59c2ccf8fe1b445a9229f023498b14521a8f9fa4dd9a', // Replace with actual deployed address
+  
+  // Smart Contract Modules
+  TRADING_MODULE: 'trading',
+  AMM_MODULE: 'amm',
+  HEDGING_MODULE: 'hedging',
+  ORACLE_MODULE: 'oracle',
+  
+  // Trading Configuration
+  MAX_LEVERAGE: 1000,
+  MIN_TRADE_SIZE: 1000000, // 0.01 APT
+  DEFAULT_FEE_RATE: 30, // 0.3%
+  
+  // AMM Configuration
+  DEFAULT_SWAP_FEE: 30, // 0.3%
+  PROTOCOL_FEE: 10, // 0.1%
+  MINIMUM_LIQUIDITY: 1000000,
+  
+  // Hedging Configuration
+  MAX_HEDGE_POSITIONS: 10,
+  DEFAULT_RISK_TOLERANCE: 1, // Medium risk
 };
 
 export const TRANSACTION_CONFIG = {

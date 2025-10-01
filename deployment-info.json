@@ -1,0 +1,14 @@
+{
+  "contractAddress": "0xa561992c5d672fc0d6eb59c2ccf8fe1b445a9229f023498b14521a8f9fa4dd9a",
+  "network": "devnet",
+  "deployedAt": "2025-10-01T16:46:21.960Z",
+  "modules": [
+    "trading",
+    "amm",
+    "hedging",
+    "oracle"
+  ],
+  "explorerUrl": "https://explorer.aptoslabs.com/account/0xa561992c5d672fc0d6eb59c2ccf8fe1b445a9229f023498b14521a8f9fa4dd9a",
+  "nodeUrl": "https://fullnode.devnet.aptoslabs.com/v1",
+  "faucetUrl": "https://faucet.devnet.aptoslabs.com"
+}

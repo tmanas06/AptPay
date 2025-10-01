@@ -15,6 +15,8 @@ import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import KanaTradingService from '../services/KanaTradingService';
+import SmartContractService from '../services/SmartContractService';
+import ApiKeyConfig from '../components/ApiKeyConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +34,7 @@ const KanaTradingScreen = ({ navigation }) => {
   const [orderPrice, setOrderPrice] = useState('');
   const [orderType, setOrderType] = useState('market'); // 'market' or 'limit'
   const [orderDirection, setOrderDirection] = useState('buy'); // 'buy' or 'sell'
+  const [showApiKeyConfig, setShowApiKeyConfig] = useState(false);
 
   const tabs = [
     { id: 'orderbook', label: 'Order Book', icon: 'list' },
@@ -43,10 +46,13 @@ const KanaTradingScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && account) {
+      // Set up SmartContractService with the wallet account
+      SmartContractService.setAccount(account);
+      console.log('SmartContractService set up with account:', account.address);
       loadMarkets();
     }
-  }, [isConnected]);
+  }, [isConnected, account]);
 
   useEffect(() => {
     if (selectedMarket) {

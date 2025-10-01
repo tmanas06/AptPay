@@ -12,7 +12,10 @@
     "build:android": "expo build:android",
     "build:ios": "expo build:ios",
     "restart": "node scripts/restart-dev.js",
-    "clear-cache": "expo start --clear"
+    "clear-cache": "expo start --clear",
+    "deploy-contracts": "node scripts/deploy-contracts.js",
+    "compile-contracts": "cd move/aptospay && aptos move compile --package-dir .",
+    "test-contracts": "cd move/aptospay && aptos move test --package-dir ."
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^5.0.0",

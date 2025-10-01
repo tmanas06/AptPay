@@ -12,6 +12,8 @@ import {
 import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import SmartContractService from '../services/SmartContractService';
+import DummyDeFiService from '../services/DummyDeFiService';
 
 const HedgingScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
@@ -69,40 +71,39 @@ const HedgingScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && account) {
+      // Set up SmartContractService with the wallet account
+      SmartContractService.setAccount(account);
+      console.log('SmartContractService set up with account:', account.address);
       fetchPositions();
       fetchRiskMetrics();
     }
-  }, [isConnected]);
+  }, [isConnected, account]);
 
   const fetchPositions = async () => {
-    // Mock data - replace with actual API calls
-    setPositions([
-      {
-        id: 1,
-        asset: 'APT',
-        type: 'spot',
-        amount: 1000,
-        value: 8450,
-        pnl: 250,
-        pnlPercent: 3.05,
-        hedgeType: 'delta-neutral',
-        hedgeValue: 8450,
-        hedgePnl: -50,
-      },
-      {
-        id: 2,
-        asset: 'USDC',
-        type: 'liquidity',
-        amount: 5000,
-        value: 5000,
-        pnl: 125,
-        pnlPercent: 2.5,
-        hedgeType: 'protective-put',
-        hedgeValue: 5000,
-        hedgePnl: 75,
-      },
-    ]);
+    try {
+      const hedgePositions = DummyDeFiService.getHedgePositions();
+      // Convert to expected format
+      const formattedPositions = hedgePositions.map(hedge => ({
+        id: hedge.id,
+        asset: hedge.underlyingAsset.split('/')[0],
+        type: 'hedge',
+        amount: hedge.amount,
+        value: hedge.currentValue,
+        pnl: hedge.pnl,
+        pnlPercent: (hedge.pnl / hedge.premium) * 100,
+        hedgeType: hedge.hedgeType,
+        hedgeValue: hedge.currentValue,
+        hedgePnl: hedge.pnl,
+        strikePrice: hedge.strikePrice,
+        expiry: hedge.expiry,
+        status: hedge.status
+      }));
+      setPositions(formattedPositions);
+    } catch (error) {
+      console.error('Error fetching hedge positions:', error);
+      setPositions([]);
+    }
   };
 
   const fetchRiskMetrics = async () => {
