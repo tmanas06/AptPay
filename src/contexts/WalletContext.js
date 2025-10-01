@@ -23,43 +23,68 @@ export const AptosWalletProvider = ({ children }) => {
   const config = new AptosConfig({ network: Network.DEVNET });
   const client = new Aptos(config);
 
-  // Restore wallet connection on app load
+  // Restore wallet connection on app load (optimized)
   useEffect(() => {
     const restoreConnection = async () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window === 'undefined') return;
+      
+      try {
         const wasConnected = localStorage.getItem('aptospay_connected');
         const savedAddress = localStorage.getItem('aptospay_account_address');
         const savedWallet = localStorage.getItem('aptospay_wallet_name');
         
         if (wasConnected === 'true' && savedAddress && savedWallet) {
+          // Set basic state immediately for faster UI response
           setIsConnected(true);
           setWalletName(savedWallet);
           
-          // Try to reconnect to the wallet to get the API
-          let walletApi = null;
-          if (savedWallet === 'Petra' && window.aptos) {
-            try {
-              walletApi = window.aptos;
-            } catch (err) {
-              console.log('Petra wallet not available for restore');
-            }
-          } else if (savedWallet === 'Martian' && window.martian) {
-            try {
-              walletApi = window.martian;
-            } catch (err) {
-              console.log('Martian wallet not available for restore');
-            }
-          }
-          
-          // Create account object with wallet API if available
+          // Create account object immediately
           const account = {
             accountAddress: { toString: () => savedAddress },
             wallet: savedWallet,
-            walletApi: walletApi
+            walletApi: null // Will be set later if available
           };
           setAccount(account);
-          await getBalance(savedAddress);
+          
+          // Try to get wallet API in background (non-blocking)
+          setTimeout(async () => {
+            let walletApi = null;
+            if (savedWallet === 'Petra' && window.aptos) {
+              try {
+                walletApi = window.aptos;
+              } catch (err) {
+                console.log('Petra wallet not available for restore');
+              }
+            } else if (savedWallet === 'Martian' && window.martian) {
+              try {
+                walletApi = window.martian;
+              } catch (err) {
+                console.log('Martian wallet not available for restore');
+              }
+            }
+            
+            // Update account with wallet API if available
+            if (walletApi) {
+              setAccount(prev => ({
+                ...prev,
+                walletApi: walletApi
+              }));
+            }
+            
+            // Get balance in background
+            try {
+              await getBalance(savedAddress);
+            } catch (err) {
+              console.log('Failed to restore balance:', err);
+            }
+          }, 100); // Small delay to not block UI
         }
+      } catch (err) {
+        console.log('Failed to restore wallet connection:', err);
+        // Clear corrupted localStorage
+        localStorage.removeItem('aptospay_connected');
+        localStorage.removeItem('aptospay_account_address');
+        localStorage.removeItem('aptospay_wallet_name');
       }
     };
     
@@ -77,53 +102,87 @@ export const AptosWalletProvider = ({ children }) => {
 
       let wallet = null;
       let accountData = null;
+      let walletApi = null;
 
-      // Try to connect to Petra wallet
-      if (walletType === 'petra' && window.aptos) {
+      // Optimize wallet detection - check availability first
+      const petraAvailable = window.aptos && typeof window.aptos.connect === 'function';
+      const martianAvailable = window.martian && typeof window.martian.connect === 'function';
+
+      if (!petraAvailable && !martianAvailable) {
+        throw new Error('No wallet found. Please install Petra or Martian wallet.');
+      }
+
+      // Try to connect to specific wallet type
+      if (walletType === 'petra' && petraAvailable) {
         try {
-          const response = await window.aptos.connect();
+          const response = await Promise.race([
+            window.aptos.connect(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Connection timeout')), 10000)
+            )
+          ]);
+          
           if (response) {
             accountData = await window.aptos.account();
             wallet = 'Petra';
+            walletApi = window.aptos;
           }
         } catch (err) {
           console.log('Petra wallet connection failed:', err);
         }
-      }
-
-      // Try to connect to Martian wallet
-      if (walletType === 'martian' && window.martian) {
+      } else if (walletType === 'martian' && martianAvailable) {
         try {
-          const response = await window.martian.connect();
+          const response = await Promise.race([
+            window.martian.connect(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Connection timeout')), 10000)
+            )
+          ]);
+          
           if (response) {
             accountData = await window.martian.account();
             wallet = 'Martian';
+            walletApi = window.martian;
           }
         } catch (err) {
           console.log('Martian wallet connection failed:', err);
         }
       }
 
-      // Auto-detect wallet if no specific type provided
+      // Auto-detect wallet if no specific type provided or failed
       if (!wallet) {
-        if (window.aptos) {
+        if (petraAvailable) {
           try {
-            const response = await window.aptos.connect();
+            const response = await Promise.race([
+              window.aptos.connect(),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Connection timeout')), 10000)
+              )
+            ]);
+            
             if (response) {
               accountData = await window.aptos.account();
               wallet = 'Petra';
+              walletApi = window.aptos;
             }
           } catch (err) {
             console.log('Petra auto-connect failed:', err);
           }
         }
 
-        if (!wallet && window.martian) {
+        if (!wallet && martianAvailable) {
           try {
-            const response = await window.martian.connect();
+            const response = await Promise.race([
+              window.martian.connect(),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Connection timeout')), 10000)
+              )
+            ]);
+            
             if (response) {
               accountData = await window.martian.account();
               wallet = 'Martian';
+              walletApi = window.martian;
             }
           } catch (err) {
             console.log('Martian auto-connect failed:', err);
@@ -139,22 +198,27 @@ export const AptosWalletProvider = ({ children }) => {
       const account = {
         accountAddress: { toString: () => accountData.address },
         wallet: wallet,
-        walletApi: wallet === 'Petra' ? window.aptos : window.martian
+        walletApi: walletApi
       };
 
+      // Update state immediately for faster UI response
       setAccount(account);
       setIsConnected(true);
       setWalletName(wallet);
 
       // Store connection state in localStorage for persistence
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('aptospay_connected', 'true');
-        localStorage.setItem('aptospay_account_address', accountData.address);
-        localStorage.setItem('aptospay_wallet_name', wallet);
-      }
+      localStorage.setItem('aptospay_connected', 'true');
+      localStorage.setItem('aptospay_account_address', accountData.address);
+      localStorage.setItem('aptospay_wallet_name', wallet);
 
-      // Get balance
-      await getBalance(accountData.address);
+      // Get balance in background (non-blocking)
+      setTimeout(async () => {
+        try {
+          await getBalance(accountData.address);
+        } catch (err) {
+          console.log('Failed to get balance:', err);
+        }
+      }, 0);
       
     } catch (err) {
       setError('Failed to connect wallet: ' + err.message);

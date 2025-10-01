@@ -118,50 +118,117 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Action Buttons */}
-          <View style={styles.actionGrid}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Send')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#FF3B30' }]}>
-                <Ionicons name="arrow-up" size={24} color="white" />
-              </View>
-              <Text style={styles.actionText}>Send</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Receive')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#34C759' }]}>
-                <Ionicons name="arrow-down" size={24} color="white" />
-              </View>
-              <Text style={styles.actionText}>Receive</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('History')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#FF9500' }]}>
-                <Ionicons name="time" size={24} color="white" />
-              </View>
-              <Text style={styles.actionText}>History</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={handleFaucet}
-              disabled={loading}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: '#5856D6' }]}>
-                <Ionicons name="water" size={24} color="white" />
-              </View>
-              <Text style={styles.actionText}>
-                {loading ? 'Requesting...' : 'Get APT'}
-              </Text>
-            </TouchableOpacity>
+          {/* Main Features */}
+          <View style={styles.featuresSection}>
+            <Text style={styles.sectionTitle}>DeFi Features</Text>
+            <View style={styles.featuresGrid}>
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('KanaTrade')}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#6C5CE7' }]}>
+                  <Ionicons name="bar-chart" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>Kana Trade</Text>
+                <Text style={styles.featureSubtitle}>Order book trading</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('KanaTrade', { screen: 'MarketData' })}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#00B894' }]}>
+                  <Ionicons name="analytics" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>Market Data</Text>
+                <Text style={styles.featureSubtitle}>Real-time prices</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('Trading')}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#FF3B30' }]}>
+                  <Ionicons name="trending-up" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>Leveraged Trade</Text>
+                <Text style={styles.featureSubtitle}>Up to 1000x leverage</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('AMM')}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#34C759' }]}>
+                  <Ionicons name="swap-horizontal" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>AMM Pools</Text>
+                <Text style={styles.featureSubtitle}>Liquidity & swaps</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('Hedging')}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#007AFF' }]}>
+                  <Ionicons name="shield-checkmark" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>Risk Hedging</Text>
+                <Text style={styles.featureSubtitle}>Portfolio protection</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.featureCard}
+                onPress={() => navigation.navigate('Wallet')}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: '#FF9500' }]}>
+                  <Ionicons name="wallet" size={24} color="white" />
+                </View>
+                <Text style={styles.featureTitle}>Wallet</Text>
+                <Text style={styles.featureSubtitle}>Send & receive</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Quick Access Cards */}
+          <View style={styles.quickAccessSection}>
+            <Text style={styles.sectionTitle}>Quick Access</Text>
+            <View style={styles.quickAccessGrid}>
+              <TouchableOpacity
+                style={styles.quickAccessCard}
+                onPress={() => navigation.navigate('Wallet', { screen: 'Send' })}
+              >
+                <Ionicons name="send" size={20} color="#FF3B30" />
+                <Text style={styles.quickAccessText}>Send</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.quickAccessCard}
+                onPress={() => navigation.navigate('Wallet', { screen: 'Receive' })}
+              >
+                <Ionicons name="download" size={20} color="#34C759" />
+                <Text style={styles.quickAccessText}>Receive</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.quickAccessCard}
+                onPress={() => navigation.navigate('Wallet', { screen: 'History' })}
+              >
+                <Ionicons name="time" size={20} color="#FF9500" />
+                <Text style={styles.quickAccessText}>History</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.quickAccessCard}
+                onPress={handleFaucet}
+                disabled={loading}
+              >
+                <Ionicons name="water" size={20} color="#5856D6" />
+                <Text style={styles.quickAccessText}>
+                  {loading ? 'Requesting...' : 'Get APT'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Quick Stats */}
@@ -443,6 +510,83 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     marginLeft: 8,
     flex: 1,
+  },
+  quickAccessSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
+  quickAccessGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  quickAccessCard: {
+    width: (width - 60) / 2,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  quickAccessText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1a1a1a',
+    marginTop: 8,
+  },
+  featuresSection: {
+    marginBottom: 20,
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  featureCard: {
+    width: (width - 60) / 2,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  featureIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  featureSubtitle: {
+    fontSize: 12,
+    color: '#6c757d',
+    textAlign: 'center',
   },
 });
 

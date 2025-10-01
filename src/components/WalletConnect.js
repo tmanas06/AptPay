@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
 import { Ionicons } from '@expo/vector-icons';
+import { LoadingOverlay, WalletLoadingSpinner } from './LoadingSpinner';
 
 const WalletConnect = () => {
   const { connectWallet, disconnectWallet, isConnected, account, balance, loading, walletName } = useWallet();
@@ -163,8 +164,7 @@ const WalletConnect = () => {
 
               {loading && (
                 <View style={styles.loadingContainer}>
-                  <Ionicons name="hourglass-outline" size={24} color="#007AFF" />
-                  <Text style={styles.loadingText}>Connecting to wallet...</Text>
+                  <WalletLoadingSpinner message="Connecting to wallet..." />
                 </View>
               )}
 
