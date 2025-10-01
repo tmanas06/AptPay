@@ -11,6 +11,7 @@ import {
   FlatList,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import KanaTradingService from '../services/KanaTradingService';
 
@@ -18,6 +19,7 @@ const { width } = Dimensions.get('window');
 
 const OrderManagementScreen = ({ navigation }) => {
   const { account, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [activeTab, setActiveTab] = useState('open');
   const [selectedMarket, setSelectedMarket] = useState(null);
   const [markets, setMarkets] = useState([]);
@@ -180,7 +182,7 @@ const OrderManagementScreen = ({ navigation }) => {
 
   const renderMarketSelector = () => (
     <View style={styles.marketSelector}>
-      <Text style={styles.sectionTitle}>Select Market</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Select Market</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {markets.map((market) => (
           <TouchableOpacity
@@ -204,7 +206,7 @@ const OrderManagementScreen = ({ navigation }) => {
   const renderOpenOrders = () => (
     <View style={styles.ordersContainer}>
       <View style={styles.ordersHeader}>
-        <Text style={styles.sectionTitle}>Open Orders</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Open Orders</Text>
         {orders.length > 0 && (
           <TouchableOpacity
             style={styles.cancelAllButton}
@@ -302,7 +304,7 @@ const OrderManagementScreen = ({ navigation }) => {
 
   const renderOrderHistory = () => (
     <View style={styles.historyContainer}>
-      <Text style={styles.sectionTitle}>Order History</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Order History</Text>
       
       {orderHistory.length > 0 ? (
         <FlatList
@@ -374,7 +376,7 @@ const OrderManagementScreen = ({ navigation }) => {
 
   const renderAccountInfo = () => (
     <View style={styles.accountContainer}>
-      <Text style={styles.sectionTitle}>Market Account Info</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Market Account Info</Text>
       
       {accountInfo ? (
         <View style={styles.accountCard}>
@@ -443,10 +445,10 @@ const OrderManagementScreen = ({ navigation }) => {
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Order Management</Text>
-          <Text style={styles.subtitle}>Manage your trading orders</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Order Management</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Manage your trading orders</Text>
         </View>
         <View style={styles.disconnectedCard}>
           <Ionicons name="wallet-outline" size={64} color="#007AFF" />
@@ -460,11 +462,11 @@ const OrderManagementScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Order Management</Text>
-        <Text style={styles.subtitle}>Manage your trading orders</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Order Management</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Manage your trading orders</Text>
       </View>
 
       {/* Market Selector */}
@@ -511,25 +513,25 @@ const OrderManagementScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: 'white',
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6c757d',
+    
   },
   marketSelector: {
     padding: 20,
@@ -550,7 +552,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
     minWidth: 120,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    
   },
   selectedMarketCard: {
     borderColor: '#007AFF',
@@ -594,7 +596,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   activeTabText: {
-    color: '#007AFF',
+    
   },
   content: {
     flex: 1,
@@ -604,11 +606,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   ordersHeader: {
     flexDirection: 'row',
@@ -702,11 +700,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   historyCard: {
     borderBottomWidth: 1,
@@ -766,11 +760,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   accountCard: {
     marginTop: 16,

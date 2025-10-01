@@ -10,10 +10,12 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const AMMScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [activeTab, setActiveTab] = useState('swap');
   const [fromToken, setFromToken] = useState('APT');
   const [toToken, setToToken] = useState('USDC');
@@ -170,15 +172,15 @@ const AMMScreen = ({ navigation }) => {
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>AMM Pools</Text>
-          <Text style={styles.subtitle}>Swap tokens and provide liquidity</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>AMM Pools</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Swap tokens and provide liquidity</Text>
         </View>
         <View style={styles.disconnectedCard}>
-          <Ionicons name="wallet-outline" size={64} color="#007AFF" />
-          <Text style={styles.disconnectedTitle}>Connect Wallet</Text>
-          <Text style={styles.disconnectedSubtitle}>
+          <Ionicons name="wallet-outline" size={64} color={colors.primary} />
+          <Text style={[styles.disconnectedTitle, { color: colors.text }]}>Connect Wallet</Text>
+          <Text style={[styles.disconnectedSubtitle, { color: colors.textSecondary }]}>
             Connect your wallet to start trading and providing liquidity
           </Text>
         </View>
@@ -187,29 +189,32 @@ const AMMScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>AMM Pools</Text>
-        <Text style={styles.subtitle}>Swap tokens and provide liquidity</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>AMM Pools</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Swap tokens and provide liquidity</Text>
       </View>
 
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         {tabs.map((tab) => (
           <TouchableOpacity
             key={tab.id}
-            style={[styles.tab, activeTab === tab.id && styles.activeTab]}
+            style={[
+              styles.tab,
+              { backgroundColor: activeTab === tab.id ? colors.primary : 'transparent' }
+            ]}
             onPress={() => setActiveTab(tab.id)}
           >
             <Ionicons 
               name={tab.icon} 
               size={20} 
-              color={activeTab === tab.id ? '#007AFF' : '#6c757d'} 
+              color={activeTab === tab.id ? 'white' : colors.textSecondary} 
             />
             <Text style={[
               styles.tabText,
-              activeTab === tab.id && styles.activeTabText
+              { color: activeTab === tab.id ? 'white' : colors.textSecondary }
             ]}>
               {tab.label}
             </Text>
@@ -218,7 +223,7 @@ const AMMScreen = ({ navigation }) => {
       </View>
 
       <ScrollView 
-        style={styles.content}
+        style={[styles.content, { backgroundColor: colors.background }]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={fetchPools} />
         }
@@ -381,25 +386,20 @@ const AMMScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
   },
   title: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6c757d',
+    fontSize: 12,
   },
   tabContainer: {
     flexDirection: 'row',

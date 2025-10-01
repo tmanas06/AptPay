@@ -9,11 +9,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 
 const ReceiveScreen = () => {
   const { account, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [showQR, setShowQR] = useState(false);
 
   const handleCopyAddress = async () => {
@@ -60,11 +62,11 @@ const ReceiveScreen = () => {
 
   if (!isConnected || !account) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centeredContent}>
           <Ionicons name="wallet-outline" size={64} color="#ccc" />
-          <Text style={styles.title}>Wallet Not Connected</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Wallet Not Connected</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Please connect your wallet to receive payments
           </Text>
         </View>
@@ -73,7 +75,7 @@ const ReceiveScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.addressCard}>
           <Text style={styles.cardTitle}>Your AptosPay Address</Text>
@@ -180,16 +182,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   addressCard: {
-    backgroundColor: 'white',
+    
     borderRadius: 15,
     padding: 20,
     marginBottom: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   cardTitle: {
     fontSize: 18,
@@ -200,7 +198,7 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#007AFF',
+    
     marginBottom: 10,
   },
   fullAddress: {
@@ -215,11 +213,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   qrButton: {
     flexDirection: 'row',
@@ -255,11 +249,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   actionButtonText: {
     marginLeft: 8,
@@ -272,11 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   infoTitle: {
     fontSize: 16,

@@ -64,7 +64,7 @@ const QRScannerScreen = ({ navigation, route }) => {
 
   if (hasPermission === null) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centeredContent}>
           <Text style={styles.message}>Requesting camera permission...</Text>
         </View>
@@ -74,11 +74,11 @@ const QRScannerScreen = ({ navigation, route }) => {
 
   if (hasPermission === false) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centeredContent}>
           <Ionicons name="camera-outline" size={64} color="#ccc" />
-          <Text style={styles.title}>Camera Permission Required</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Camera Permission Required</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Please allow camera access to scan QR codes
           </Text>
           <TouchableOpacity style={styles.button} onPress={getCameraPermissions}>
@@ -90,7 +90,7 @@ const QRScannerScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}

@@ -1,16 +1,30 @@
 # AptosPay - Advanced DeFi Trading Platform
 
-A comprehensive DeFi platform built for Aptos blockchain, combining payment functionality with advanced trading features from the winning projects of last year's hackathon. Features leveraged trading, AMM pools, and risk hedging capabilities.
+A comprehensive DeFi platform built for Aptos blockchain, combining payment functionality with advanced trading features from the winning projects of last year's hackathon. Features leveraged trading, AMM pools, risk hedging capabilities, and full dark/light mode support.
+
+## 📚 Documentation
+
+**Complete Guides:**
+- 📖 **[FEATURES.md](FEATURES.md)** - Detailed feature documentation and usage instructions
+- 🚀 **[USER_GUIDE.md](USER_GUIDE.md)** - Quick start guide, workflows, and tips
+- 🔧 **[TECHNICAL_DOCS.md](TECHNICAL_DOCS.md)** - Technical details, API reference, and architecture
+- 🚢 **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Smart contract and app deployment
+
+**Quick Links:**
+- [Getting Started](#-quick-start) - Set up in 5 minutes
+- [Features Overview](#-features) - What you can do
+- [Development](#-development) - Run locally
 
 ## 🚀 Features
 
 ### Core Wallet Features
 - **Instant Payments**: Send and receive APT tokens instantly
 - **Mobile-First Design**: Optimized for mobile devices with React Native
+- **Dark/Light Mode**: Fully implemented theme system with persistent preferences
 - **QR Code Support**: Scan QR codes for easy address input
-- **Wallet Integration**: Connect with private key authentication
+- **Wallet Integration**: Connect with Petra or Martian wallets
 - **Transaction History**: View all your payment history
-- **Testnet Support**: Built for Aptos testnet with faucet integration
+- **Testnet Support**: Built for Aptos devnet with faucet integration
 
 ### Advanced Trading Features (from Merkle Trade)
 - **Leveraged Trading**: Trade with up to 1000x leverage

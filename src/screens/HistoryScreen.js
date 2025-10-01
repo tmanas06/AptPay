@@ -9,10 +9,12 @@ import {
   Alert,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const HistoryScreen = () => {
   const { account, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -87,11 +89,11 @@ const HistoryScreen = () => {
 
   if (!isConnected || !account) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centeredContent}>
           <Ionicons name="wallet-outline" size={64} color="#ccc" />
-          <Text style={styles.title}>Wallet Not Connected</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Wallet Not Connected</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Please connect your wallet to view transaction history
           </Text>
         </View>
@@ -100,8 +102,8 @@ const HistoryScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <Text style={styles.headerTitle}>Transaction History</Text>
         <TouchableOpacity onPress={handleRefresh} disabled={loading}>
           <Ionicons 
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: 'white',
+    
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -201,11 +203,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 5,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    
   },
   transactionIcon: {
     width: 40,

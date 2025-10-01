@@ -10,7 +10,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import WalletConnect from '../components/WalletConnect';
+import ThemeToggle from '../components/ThemeToggle';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -25,6 +27,8 @@ const HomeScreen = ({ navigation }) => {
     getBalance, 
     requestFaucet 
   } = useWallet();
+  
+  const { colors, typography, spacing, borderRadius, shadows } = useTheme();
 
   useEffect(() => {
     if (isConnected && account) {
@@ -54,16 +58,19 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <ScrollView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
       }
     >
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>AptosPay</Text>
-          <Text style={styles.subtitle}>Aptos Devnet Wallet</Text>
+      <View style={[styles.header, { backgroundColor: colors.primary }]}>
+        <View style={styles.headerTop}>
+          <View style={styles.headerContent}>
+            <Text style={[styles.title, { color: colors.textInverse }]}>AptosPay</Text>
+            <Text style={[styles.subtitle, { color: colors.textInverse }]}>Aptos Devnet Wallet</Text>
+          </View>
+          <ThemeToggle size="small" showLabel={false} />
         </View>
         <View style={styles.networkBadge}>
           <View style={styles.networkDot} />
@@ -73,10 +80,10 @@ const HomeScreen = ({ navigation }) => {
 
       {!isConnected ? (
         <View style={styles.walletSection}>
-          <View style={styles.walletCard}>
-            <Ionicons name="wallet-outline" size={64} color="#007AFF" />
-            <Text style={styles.walletTitle}>Connect Your Wallet</Text>
-            <Text style={styles.walletSubtitle}>
+          <View style={[styles.walletCard, { backgroundColor: colors.surface, ...shadows.lg }]}>
+            <Ionicons name="wallet-outline" size={64} color={colors.primary} />
+            <Text style={[styles.walletTitle, { color: colors.text }]}>Connect Your Wallet</Text>
+            <Text style={[styles.walletSubtitle, { color: colors.textSecondary }]}>
               Connect to start using AptosPay on devnet
             </Text>
             <WalletConnect />
@@ -85,7 +92,7 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <View style={styles.connectedSection}>
           {/* Balance Card */}
-          <View style={styles.balanceCard}>
+          <View style={[styles.balanceCard, { backgroundColor: colors.surface, ...shadows.md }]}>
             <View style={styles.balanceHeader}>
               <Text style={styles.balanceLabel}>Total Balance</Text>
               <TouchableOpacity onPress={handleRefresh} disabled={loading}>
@@ -98,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
           {/* Account Info */}
-          <View style={styles.accountCard}>
+          <View style={[styles.accountCard, { backgroundColor: colors.surface, ...shadows.sm }]}>
             <View style={styles.accountHeader}>
               <Ionicons name="person-circle" size={24} color="#007AFF" />
               <Text style={styles.accountTitle}>Account</Text>
@@ -120,17 +127,17 @@ const HomeScreen = ({ navigation }) => {
 
           {/* Main Features */}
           <View style={styles.featuresSection}>
-            <Text style={styles.sectionTitle}>DeFi Features</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>DeFi Features</Text>
             <View style={styles.featuresGrid}>
               <TouchableOpacity
-                style={styles.featureCard}
+                style={[styles.featureCard, { backgroundColor: colors.surface, ...shadows.sm }]}
                 onPress={() => navigation.navigate('KanaTrade')}
               >
-                <View style={[styles.featureIcon, { backgroundColor: '#6C5CE7' }]}>
+                <View style={[styles.featureIcon, { backgroundColor: colors.accent1 }]}>
                   <Ionicons name="bar-chart" size={24} color="white" />
                 </View>
-                <Text style={styles.featureTitle}>Kana Trade</Text>
-                <Text style={styles.featureSubtitle}>Order book trading</Text>
+                <Text style={[styles.featureTitle, { color: colors.text }]}>Kana Trade</Text>
+                <Text style={[styles.featureSubtitle, { color: colors.textSecondary }]}>Order book trading</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -192,39 +199,39 @@ const HomeScreen = ({ navigation }) => {
 
           {/* Quick Access Cards */}
           <View style={styles.quickAccessSection}>
-            <Text style={styles.sectionTitle}>Quick Access</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Access</Text>
             <View style={styles.quickAccessGrid}>
               <TouchableOpacity
-                style={styles.quickAccessCard}
-                onPress={() => navigation.navigate('Wallet', { screen: 'Send' })}
+                style={[styles.quickAccessCard, { backgroundColor: colors.surface, ...shadows.sm }]}
+                onPress={() => navigation.navigate('Guide')}
               >
-                <Ionicons name="send" size={20} color="#FF3B30" />
-                <Text style={styles.quickAccessText}>Send</Text>
+                <Ionicons name="book" size={20} color={colors.primary} />
+                <Text style={[styles.quickAccessText, { color: colors.text }]}>User Guide</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                style={styles.quickAccessCard}
-                onPress={() => navigation.navigate('Wallet', { screen: 'Receive' })}
+                style={[styles.quickAccessCard, { backgroundColor: colors.surface, ...shadows.sm }]}
+                onPress={() => navigation.navigate('Trading')}
               >
-                <Ionicons name="download" size={20} color="#34C759" />
-                <Text style={styles.quickAccessText}>Receive</Text>
+                <Ionicons name="trending-up" size={20} color={colors.accent3} />
+                <Text style={[styles.quickAccessText, { color: colors.text }]}>Trade</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                style={styles.quickAccessCard}
-                onPress={() => navigation.navigate('Wallet', { screen: 'History' })}
+                style={[styles.quickAccessCard, { backgroundColor: colors.surface, ...shadows.sm }]}
+                onPress={() => navigation.navigate('AMM')}
               >
-                <Ionicons name="time" size={20} color="#FF9500" />
-                <Text style={styles.quickAccessText}>History</Text>
+                <Ionicons name="swap-horizontal" size={20} color={colors.accent4} />
+                <Text style={[styles.quickAccessText, { color: colors.text }]}>Swap</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                style={styles.quickAccessCard}
+                style={[styles.quickAccessCard, { backgroundColor: colors.surface, ...shadows.sm }]}
                 onPress={handleFaucet}
                 disabled={loading}
               >
-                <Ionicons name="water" size={20} color="#5856D6" />
-                <Text style={styles.quickAccessText}>
+                <Ionicons name="water" size={20} color={colors.secondary} />
+                <Text style={[styles.quickAccessText, { color: colors.text }]}>
                   {loading ? 'Requesting...' : 'Get APT'}
                 </Text>
               </TouchableOpacity>
@@ -265,15 +272,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   headerContent: {
     flex: 1,
@@ -319,11 +326,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 40,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
     width: '100%',
     maxWidth: 350,
   },
@@ -349,11 +351,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -387,11 +384,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   accountHeader: {
     flexDirection: 'row',
@@ -425,31 +417,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 16,
+    alignItems: 'flex-start',
   },
   actionButton: {
-    width: (width - 60) / 2,
+    width: (width - 44) / 2,
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   actionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1a1a1a',
   },
@@ -458,11 +446,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   statsTitle: {
     fontSize: 16,
@@ -512,33 +495,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickAccessSection: {
-    marginBottom: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginBottom: 16,
-    paddingHorizontal: 20,
+    marginBottom: 12,
   },
   quickAccessGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    alignItems: 'flex-start',
   },
   quickAccessCard: {
-    width: (width - 60) / 2,
+    width: (width - 44) / 2,
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   quickAccessText: {
     fontSize: 14,
@@ -547,46 +525,43 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   featuresSection: {
-    marginBottom: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
   featuresGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    alignItems: 'flex-start',
   },
   featureCard: {
-    width: (width - 60) / 2,
+    width: (width - 44) / 2,
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
+    borderRadius: 12,
+    padding: 12,
     alignItems: 'center',
     marginBottom: 12,
   },
+  featureIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   featureTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginBottom: 4,
+    marginBottom: 2,
     textAlign: 'center',
   },
   featureSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6c757d',
     textAlign: 'center',
+    lineHeight: 14,
   },
 });
 

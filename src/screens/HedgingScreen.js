@@ -10,10 +10,12 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const HedgingScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [activeTab, setActiveTab] = useState('portfolio');
   const [selectedStrategy, setSelectedStrategy] = useState('delta-neutral');
   const [hedgeAmount, setHedgeAmount] = useState('');
@@ -44,7 +46,7 @@ const HedgingScreen = ({ navigation }) => {
       riskLevel: 'Medium',
       expectedReturn: '8-12%',
       icon: 'shield',
-      color: '#007AFF',
+      
     },
     {
       id: 'covered-call',
@@ -168,10 +170,10 @@ const HedgingScreen = ({ navigation }) => {
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Risk Hedging</Text>
-          <Text style={styles.subtitle}>Protect your portfolio from volatility</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Risk Hedging</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Protect your portfolio from volatility</Text>
         </View>
         <View style={styles.disconnectedCard}>
           <Ionicons name="wallet-outline" size={64} color="#007AFF" />
@@ -185,11 +187,11 @@ const HedgingScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Risk Hedging</Text>
-        <Text style={styles.subtitle}>Protect your portfolio from volatility</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Risk Hedging</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Protect your portfolio from volatility</Text>
       </View>
 
       {/* Tabs */}
@@ -259,7 +261,7 @@ const HedgingScreen = ({ navigation }) => {
             </View>
 
             {/* Positions */}
-            <Text style={styles.sectionTitle}>Hedged Positions</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Hedged Positions</Text>
             {positions.map((position) => {
               const pnlInfo = formatPnl(position.pnl);
               const hedgePnlInfo = formatPnl(position.hedgePnl);
@@ -304,7 +306,7 @@ const HedgingScreen = ({ navigation }) => {
 
         {activeTab === 'hedge' && (
           <View style={styles.hedgeContainer}>
-            <Text style={styles.sectionTitle}>Apply Hedge</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Apply Hedge</Text>
             
             {/* Strategy Selection */}
             <View style={styles.strategyContainer}>
@@ -381,7 +383,7 @@ const HedgingScreen = ({ navigation }) => {
 
         {activeTab === 'strategies' && (
           <View style={styles.strategiesContainer}>
-            <Text style={styles.sectionTitle}>Available Strategies</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Available Strategies</Text>
             
             {hedgingStrategies.map((strategy) => (
               <View key={strategy.id} style={styles.strategyDetailCard}>
@@ -440,25 +442,25 @@ const HedgingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    
   },
   title: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
+    
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6c757d',
+    fontSize: 12,
+    
   },
   tabContainer: {
     flexDirection: 'row',
@@ -501,11 +503,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   cardTitle: {
     fontSize: 16,
@@ -543,11 +541,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   positionHeader: {
     flexDirection: 'row',
@@ -627,7 +621,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    
   },
   selectedStrategyCard: {
     borderColor: '#007AFF',
@@ -732,11 +726,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   strategyDetailHeader: {
     flexDirection: 'row',

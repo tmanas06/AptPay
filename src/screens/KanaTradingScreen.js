@@ -12,6 +12,7 @@ import {
   FlatList,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import KanaTradingService from '../services/KanaTradingService';
 
@@ -19,6 +20,7 @@ const { width } = Dimensions.get('window');
 
 const KanaTradingScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [activeTab, setActiveTab] = useState('orderbook');
   const [selectedMarket, setSelectedMarket] = useState(null);
   const [markets, setMarkets] = useState([]);
@@ -195,7 +197,7 @@ const KanaTradingScreen = ({ navigation }) => {
 
   const renderMarketSelector = () => (
     <View style={styles.marketSelector}>
-      <Text style={styles.sectionTitle}>Select Market</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Select Market</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {markets.map((market) => (
           <TouchableOpacity
@@ -242,7 +244,7 @@ const KanaTradingScreen = ({ navigation }) => {
 
   const renderOrderBook = () => (
     <View style={styles.orderBookCard}>
-      <Text style={styles.sectionTitle}>Order Book</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Order Book</Text>
       {orderBook ? (
         <View style={styles.orderBookContainer}>
           {/* Asks (Sell Orders) */}
@@ -298,7 +300,7 @@ const KanaTradingScreen = ({ navigation }) => {
 
   const renderPlaceOrder = () => (
     <View style={styles.placeOrderCard}>
-      <Text style={styles.sectionTitle}>Place Order</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Place Order</Text>
       
       {/* Order Type Selection */}
       <View style={styles.orderTypeContainer}>
@@ -410,7 +412,7 @@ const KanaTradingScreen = ({ navigation }) => {
 
   const renderUserOrders = () => (
     <View style={styles.userOrdersCard}>
-      <Text style={styles.sectionTitle}>My Orders</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>My Orders</Text>
       {userOrders.length > 0 ? (
         <FlatList
           data={userOrders}
@@ -455,10 +457,10 @@ const KanaTradingScreen = ({ navigation }) => {
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Kana Labs Trading</Text>
-          <Text style={styles.subtitle}>Advanced order book trading</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Kana Labs Trading</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Advanced order book trading</Text>
         </View>
         <View style={styles.disconnectedCard}>
           <Ionicons name="wallet-outline" size={64} color="#007AFF" />
@@ -472,11 +474,11 @@ const KanaTradingScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Kana Labs Trading</Text>
-        <Text style={styles.subtitle}>Advanced order book trading</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Kana Labs Trading</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Advanced order book trading</Text>
       </View>
 
       {/* Market Selector */}
@@ -546,37 +548,37 @@ const KanaTradingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
+    
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6c757d',
+    fontSize: 12,
+    
   },
   marketSelector: {
-    padding: 20,
+    padding: 16,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   marketCard: {
     backgroundColor: '#f8f9fa',
@@ -585,7 +587,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
     minWidth: 120,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    
   },
   selectedMarketCard: {
     borderColor: '#007AFF',
@@ -634,8 +636,8 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
   },
@@ -644,22 +646,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     marginHorizontal: 4,
   },
   activeTab: {
     backgroundColor: '#f0f8ff',
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
     color: '#6c757d',
-    marginLeft: 6,
+    marginLeft: 4,
   },
   activeTabText: {
-    color: '#007AFF',
+    
   },
   content: {
     flex: 1,
@@ -669,11 +671,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   orderBookContainer: {
     flexDirection: 'row',
@@ -726,11 +724,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   orderTypeContainer: {
     flexDirection: 'row',
@@ -825,11 +819,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   orderItem: {
     borderBottomWidth: 1,
@@ -907,11 +897,7 @@ const styles = StyleSheet.create({
     padding: 24,
     margin: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   navigationTitle: {
     fontSize: 18,

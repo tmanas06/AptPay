@@ -10,6 +10,7 @@ import {
   FlatList,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import KanaTradingService from '../services/KanaTradingService';
 
@@ -17,6 +18,7 @@ const { width } = Dimensions.get('window');
 
 const MarketDataScreen = ({ navigation }) => {
   const { account, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [activeTab, setActiveTab] = useState('markets');
   const [markets, setMarkets] = useState([]);
   const [selectedMarket, setSelectedMarket] = useState(null);
@@ -141,7 +143,7 @@ const MarketDataScreen = ({ navigation }) => {
 
   const renderMarketsList = () => (
     <View style={styles.marketsContainer}>
-      <Text style={styles.sectionTitle}>Available Markets</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Available Markets</Text>
       <FlatList
         data={markets}
         keyExtractor={(item) => item.marketId.toString()}
@@ -176,7 +178,7 @@ const MarketDataScreen = ({ navigation }) => {
 
   const renderMarketOverview = () => (
     <View style={styles.overviewCard}>
-      <Text style={styles.sectionTitle}>Market Overview</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Market Overview</Text>
       {selectedMarket && (
         <View style={styles.marketHeader}>
           <Text style={styles.marketSymbolLarge}>{selectedMarket.market}</Text>
@@ -223,7 +225,7 @@ const MarketDataScreen = ({ navigation }) => {
 
   const renderOrderBookData = () => (
     <View style={styles.orderBookCard}>
-      <Text style={styles.sectionTitle}>Order Book Depth</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Order Book Depth</Text>
       {orderBook && (
         <View style={styles.orderBookContainer}>
           {/* Asks */}
@@ -271,7 +273,7 @@ const MarketDataScreen = ({ navigation }) => {
   const renderCharts = () => (
     <View style={styles.chartsContainer}>
       <View style={styles.chartHeader}>
-        <Text style={styles.sectionTitle}>Price Chart</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Price Chart</Text>
         <View style={styles.timeframeSelector}>
           {timeframes.map((tf) => (
             <TouchableOpacity
@@ -325,7 +327,7 @@ const MarketDataScreen = ({ navigation }) => {
 
   const renderTrades = () => (
     <View style={styles.tradesContainer}>
-      <Text style={styles.sectionTitle}>Recent Trades</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Trades</Text>
       {trades.length > 0 ? (
         <FlatList
           data={trades.slice(0, 20)}
@@ -361,10 +363,10 @@ const MarketDataScreen = ({ navigation }) => {
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Market Data</Text>
-          <Text style={styles.subtitle}>Real-time market information</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Market Data</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Real-time market information</Text>
         </View>
         <View style={styles.disconnectedCard}>
           <Ionicons name="wallet-outline" size={64} color="#007AFF" />
@@ -378,11 +380,11 @@ const MarketDataScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Market Data</Text>
-        <Text style={styles.subtitle}>Real-time market information</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Market Data</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Real-time market information</Text>
       </View>
 
       {/* Market Overview */}
@@ -432,36 +434,32 @@ const MarketDataScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: 'white',
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6c757d',
+    
   },
   overviewCard: {
     backgroundColor: 'white',
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   sectionTitle: {
     fontSize: 18,
@@ -534,7 +532,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   activeTabText: {
-    color: '#007AFF',
+    
   },
   content: {
     flex: 1,
@@ -544,11 +542,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   marketItem: {
     flexDirection: 'row',
@@ -600,11 +594,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   orderBookContainer: {
     flexDirection: 'row',
@@ -638,11 +628,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   chartHeader: {
     flexDirection: 'row',
@@ -706,11 +692,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    
   },
   tradeRow: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { AptosWalletProvider } from './src/contexts/WalletContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import HomeScreen from './src/screens/HomeScreen';
 import SendScreen from './src/screens/SendScreen';
 import ReceiveScreen from './src/screens/ReceiveScreen';
@@ -15,6 +16,7 @@ import AMMScreen from './src/screens/AMMScreen';
 import KanaTradingScreen from './src/screens/KanaTradingScreen';
 import MarketDataScreen from './src/screens/MarketDataScreen';
 import OrderManagementScreen from './src/screens/OrderManagementScreen';
+import GuideScreen from './src/screens/GuideScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -87,6 +89,8 @@ function KanaStack() {
 }
 
 function MainTabs() {
+  const { colors } = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -104,16 +108,27 @@ function MainTabs() {
           } else if (route.name === 'AMM') {
             iconName = focused ? 'swap-horizontal' : 'swap-horizontal-outline';
           } else if (route.name === 'Hedging') {
-            iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
-          } else if (route.name === 'Wallet') {
-            iconName = focused ? 'wallet' : 'wallet-outline';
-          }
+              iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
+            } else if (route.name === 'Guide') {
+              iconName = focused ? 'book' : 'book-outline';
+            }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         headerShown: false,
+        tabBarStyle: {
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+          backgroundColor: colors.tabBarBackground,
+          borderTopColor: colors.tabBarBorder,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -121,18 +136,26 @@ function MainTabs() {
       <Tab.Screen name="Trading" component={TradingScreen} />
       <Tab.Screen name="AMM" component={AMMScreen} />
       <Tab.Screen name="Hedging" component={HedgingScreen} />
-      <Tab.Screen name="Wallet" component={WalletStack} />
+      <Tab.Screen name="Guide" component={GuideScreen} />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <AptosWalletProvider>
-      <NavigationContainer>
-        <MainTabs />
-        <StatusBar style="auto" />
-      </NavigationContainer>
-    </AptosWalletProvider>
+    <ThemeProvider>
+      <AptosWalletProvider>
+        <NavigationContainer>
+          <StatusBarWrapper />
+          <MainTabs />
+        </NavigationContainer>
+      </AptosWalletProvider>
+    </ThemeProvider>
   );
+}
+
+// Component to handle theme-aware status bar
+function StatusBarWrapper() {
+  const { isDarkMode } = useTheme();
+  return <StatusBar style={isDarkMode ? "light" : "dark"} />;
 }

@@ -9,11 +9,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LoadingOverlay, WalletLoadingSpinner } from './LoadingSpinner';
 
 const WalletConnect = () => {
   const { connectWallet, disconnectWallet, isConnected, account, balance, loading, walletName } = useWallet();
+  const { colors } = useTheme();
   const [showModal, setShowModal] = useState(false);
 
   const handleConnect = async (walletType) => {
@@ -75,9 +77,9 @@ const WalletConnect = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.connectButton} onPress={() => setShowModal(true)}>
-        <Ionicons name="wallet-outline" size={24} color="#007AFF" />
-        <Text style={styles.connectText}>Connect Wallet</Text>
+      <TouchableOpacity style={[styles.connectButton, { backgroundColor: colors.primary }]} onPress={() => setShowModal(true)}>
+        <Ionicons name="wallet-outline" size={24} color={colors.textInverse} />
+        <Text style={[styles.connectText, { color: colors.textInverse }]}>Connect Wallet</Text>
       </TouchableOpacity>
 
       <Modal
@@ -86,17 +88,17 @@ const WalletConnect = () => {
         transparent={true}
         onRequestClose={() => setShowModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Connect Your Wallet</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Connect Your Wallet</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color="#666" />
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.scrollContainer}>
-              <Text style={styles.modalSubtitle}>
+              <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
                 Choose a wallet to connect to AptosPay
               </Text>
 
@@ -278,11 +280,11 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 16,
+    padding: 16,
     width: '100%',
-    maxWidth: 400,
-    maxHeight: '80%',
+    maxWidth: 380,
+    maxHeight: '85%',
   },
   scrollContainer: {
     flex: 1,
@@ -291,30 +293,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
   modalSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   walletOptions: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   walletOption: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 2,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
     borderColor: '#e9ecef',
   },
   walletOptionDisabled: {
@@ -323,28 +325,28 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   walletIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#f0f8ff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 12,
   },
   walletInfo: {
     flex: 1,
   },
   walletName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   walletNameDisabled: {
     color: '#999',
   },
   walletDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
     marginBottom: 2,
   },

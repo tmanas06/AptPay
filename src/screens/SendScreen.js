@@ -11,10 +11,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const SendScreen = ({ navigation }) => {
   const { account, balance, sendTransaction, loading } = useWallet();
+  const { colors, shadows } = useTheme();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [isValidAddress, setIsValidAddress] = useState(false);
@@ -96,7 +98,7 @@ const SendScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.content}>
@@ -186,16 +188,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   balanceCard: {
-    backgroundColor: 'white',
+    
     borderRadius: 15,
     padding: 20,
     marginBottom: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   balanceLabel: {
     fontSize: 16,
@@ -205,18 +203,14 @@ const styles = StyleSheet.create({
   balanceAmount: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#007AFF',
+    
   },
   form: {
     backgroundColor: 'white',
     borderRadius: 15,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   inputGroup: {
     marginBottom: 20,
@@ -284,11 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 15,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    
   },
   infoTitle: {
     fontSize: 16,

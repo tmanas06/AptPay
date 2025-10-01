@@ -11,12 +11,14 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
 const TradingScreen = ({ navigation }) => {
   const { account, balance, isConnected } = useWallet();
+  const { colors, shadows } = useTheme();
   const [selectedPair, setSelectedPair] = useState('APT/USDC');
   const [leverage, setLeverage] = useState(10);
   const [positionType, setPositionType] = useState('long'); // long or short
@@ -97,22 +99,22 @@ const TradingScreen = ({ navigation }) => {
   };
 
   const formatPnl = (pnl) => {
-    const color = pnl >= 0 ? '#34C759' : '#FF3B30';
+    const color = pnl >= 0 ? colors.green : colors.red;
     const sign = pnl >= 0 ? '+' : '';
     return { color, text: `${sign}${pnl.toFixed(2)}` };
   };
 
   if (!isConnected) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Leveraged Trading</Text>
-          <Text style={styles.subtitle}>Trade with up to 1000x leverage</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Leveraged Trading</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Trade with up to 1000x leverage</Text>
         </View>
         <View style={styles.disconnectedCard}>
-          <Ionicons name="wallet-outline" size={64} color="#007AFF" />
-          <Text style={styles.disconnectedTitle}>Connect Wallet</Text>
-          <Text style={styles.disconnectedSubtitle}>
+          <Ionicons name="wallet-outline" size={64} color={colors.primary} />
+          <Text style={[styles.disconnectedTitle, { color: colors.text }]}>Connect Wallet</Text>
+          <Text style={[styles.disconnectedSubtitle, { color: colors.textSecondary }]}>
             Connect your wallet to start trading
           </Text>
         </View>
@@ -122,35 +124,36 @@ const TradingScreen = ({ navigation }) => {
 
   return (
     <ScrollView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={fetchPositions} />
       }
     >
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Leveraged Trading</Text>
-        <Text style={styles.subtitle}>Trade with up to 1000x leverage</Text>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Leveraged Trading</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Trade with up to 1000x leverage</Text>
       </View>
 
       {/* Trading Pairs */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Trading Pairs</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Trading Pairs</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {tradingPairs.map((pair, index) => (
             <TouchableOpacity
               key={index}
               style={[
                 styles.pairCard,
-                selectedPair === pair.symbol && styles.selectedPairCard
+                { backgroundColor: colors.surface, ...shadows.sm },
+                selectedPair === pair.symbol && { borderColor: colors.primary }
               ]}
               onPress={() => setSelectedPair(pair.symbol)}
             >
-              <Text style={styles.pairSymbol}>{pair.symbol}</Text>
-              <Text style={styles.pairPrice}>${pair.price.toLocaleString()}</Text>
+              <Text style={[styles.pairSymbol, { color: colors.text }]}>{pair.symbol}</Text>
+              <Text style={[styles.pairPrice, { color: colors.text }]}>${pair.price.toLocaleString()}</Text>
               <Text style={[
                 styles.pairChange,
-                { color: pair.change.startsWith('+') ? '#34C759' : '#FF3B30' }
+                { color: pair.change.startsWith('+') ? colors.green : colors.red }
               ]}>
                 {pair.change}
               </Text>
@@ -161,23 +164,24 @@ const TradingScreen = ({ navigation }) => {
 
       {/* Position Type */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Position Type</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Position Type</Text>
         <View style={styles.positionTypeContainer}>
           <TouchableOpacity
             style={[
               styles.positionTypeButton,
-              positionType === 'long' && styles.selectedPositionType
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              positionType === 'long' && { backgroundColor: colors.primary, borderColor: colors.primary }
             ]}
             onPress={() => setPositionType('long')}
           >
             <Ionicons 
               name="trending-up" 
               size={20} 
-              color={positionType === 'long' ? 'white' : '#34C759'} 
+              color={positionType === 'long' ? 'white' : colors.green} 
             />
             <Text style={[
               styles.positionTypeText,
-              positionType === 'long' && styles.selectedPositionTypeText
+              { color: positionType === 'long' ? 'white' : colors.text }
             ]}>
               Long
             </Text>
@@ -185,18 +189,19 @@ const TradingScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[
               styles.positionTypeButton,
-              positionType === 'short' && styles.selectedPositionType
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              positionType === 'short' && { backgroundColor: colors.primary, borderColor: colors.primary }
             ]}
             onPress={() => setPositionType('short')}
           >
             <Ionicons 
               name="trending-down" 
               size={20} 
-              color={positionType === 'short' ? 'white' : '#FF3B30'} 
+              color={positionType === 'short' ? 'white' : colors.red} 
             />
             <Text style={[
               styles.positionTypeText,
-              positionType === 'short' && styles.selectedPositionTypeText
+              { color: positionType === 'short' ? 'white' : colors.text }
             ]}>
               Short
             </Text>
@@ -206,20 +211,21 @@ const TradingScreen = ({ navigation }) => {
 
       {/* Leverage Selection */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Leverage: {leverage}x</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Leverage: {leverage}x</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {leverageOptions.map((option) => (
             <TouchableOpacity
               key={option}
               style={[
                 styles.leverageButton,
-                leverage === option && styles.selectedLeverageButton
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                leverage === option && { backgroundColor: colors.primary, borderColor: colors.primary }
               ]}
               onPress={() => setLeverage(option)}
             >
               <Text style={[
                 styles.leverageText,
-                leverage === option && styles.selectedLeverageText
+                { color: leverage === option ? 'white' : colors.text }
               ]}>
                 {option}x
               </Text>
@@ -230,28 +236,32 @@ const TradingScreen = ({ navigation }) => {
 
       {/* Amount Input */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Amount</Text>
-        <View style={styles.amountContainer}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Amount</Text>
+        <View style={[styles.amountContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <TextInput
-            style={styles.amountInput}
+            style={[styles.amountInput, { color: colors.text }]}
             value={amount}
             onChangeText={setAmount}
             placeholder="Enter amount"
             keyboardType="numeric"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textSecondary}
           />
-          <Text style={styles.amountCurrency}>
+          <Text style={[styles.amountCurrency, { color: colors.primary }]}>
             {selectedPair.split('/')[0]}
           </Text>
         </View>
-        <Text style={styles.amountHint}>
+        <Text style={[styles.amountHint, { color: colors.textSecondary }]}>
           Available: {balance.toFixed(4)} APT
         </Text>
       </View>
 
       {/* Trade Button */}
       <TouchableOpacity
-        style={[styles.tradeButton, loading && styles.disabledButton]}
+        style={[
+          styles.tradeButton, 
+          { backgroundColor: colors.primary },
+          loading && { backgroundColor: colors.textSecondary }
+        ]}
         onPress={handleTrade}
         disabled={loading}
       >
@@ -262,21 +272,21 @@ const TradingScreen = ({ navigation }) => {
 
       {/* Open Positions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Open Positions</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Open Positions</Text>
         {positions.length === 0 ? (
-          <View style={styles.noPositionsCard}>
-            <Ionicons name="bar-chart-outline" size={48} color="#999" />
-            <Text style={styles.noPositionsText}>No open positions</Text>
+          <View style={[styles.noPositionsCard, { backgroundColor: colors.surface, ...shadows.sm }]}>
+            <Ionicons name="bar-chart-outline" size={48} color={colors.textSecondary} />
+            <Text style={[styles.noPositionsText, { color: colors.textSecondary }]}>No open positions</Text>
           </View>
         ) : (
           positions.map((position) => {
             const pnlInfo = formatPnl(position.pnl);
             return (
-              <View key={position.id} style={styles.positionCard}>
+              <View key={position.id} style={[styles.positionCard, { backgroundColor: colors.surface, ...shadows.sm }]}>
                 <View style={styles.positionHeader}>
                   <View>
-                    <Text style={styles.positionPair}>{position.pair}</Text>
-                    <Text style={styles.positionDetails}>
+                    <Text style={[styles.positionPair, { color: colors.text }]}>{position.pair}</Text>
+                    <Text style={[styles.positionDetails, { color: colors.textSecondary }]}>
                       {position.type.toUpperCase()} • {position.leverage}x • {position.size} tokens
                     </Text>
                   </View>
@@ -284,20 +294,20 @@ const TradingScreen = ({ navigation }) => {
                     style={styles.closeButton}
                     onPress={() => closePosition(position.id)}
                   >
-                    <Ionicons name="close" size={20} color="#FF3B30" />
+                    <Ionicons name="close" size={20} color={colors.red} />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.positionStats}>
                   <View style={styles.positionStat}>
-                    <Text style={styles.positionStatLabel}>Entry Price</Text>
-                    <Text style={styles.positionStatValue}>${position.entryPrice}</Text>
+                    <Text style={[styles.positionStatLabel, { color: colors.textSecondary }]}>Entry Price</Text>
+                    <Text style={[styles.positionStatValue, { color: colors.text }]}>${position.entryPrice}</Text>
                   </View>
                   <View style={styles.positionStat}>
-                    <Text style={styles.positionStatLabel}>Current Price</Text>
-                    <Text style={styles.positionStatValue}>${position.currentPrice}</Text>
+                    <Text style={[styles.positionStatLabel, { color: colors.textSecondary }]}>Current Price</Text>
+                    <Text style={[styles.positionStatValue, { color: colors.text }]}>${position.currentPrice}</Text>
                   </View>
                   <View style={styles.positionStat}>
-                    <Text style={styles.positionStatLabel}>PnL</Text>
+                    <Text style={[styles.positionStatLabel, { color: colors.textSecondary }]}>PnL</Text>
                     <Text style={[styles.positionStatValue, { color: pnlInfo.color }]}>
                       {pnlInfo.text}
                     </Text>
@@ -315,61 +325,45 @@ const TradingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
   },
   title: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6c757d',
+    fontSize: 12,
   },
   section: {
-    padding: 20,
+    padding: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   pairCard: {
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginRight: 12,
     minWidth: 120,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  selectedPairCard: {
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: 'transparent',
   },
   pairSymbol: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
     marginBottom: 4,
   },
   pairPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a1a1a',
     marginBottom: 4,
   },
   pairChange: {
@@ -388,21 +382,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#e9ecef',
-    backgroundColor: 'white',
-  },
-  selectedPositionType: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
   },
   positionTypeText: {
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
-    color: '#1a1a1a',
-  },
-  selectedPositionTypeText: {
-    color: 'white',
   },
   leverageButton: {
     paddingHorizontal: 20,
@@ -410,56 +394,37 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    backgroundColor: 'white',
-  },
-  selectedLeverageButton: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
   },
   leverageText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  selectedLeverageText: {
-    color: 'white',
   },
   amountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
   },
   amountInput: {
     flex: 1,
     fontSize: 18,
-    color: '#1a1a1a',
   },
   amountCurrency: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
     marginLeft: 8,
   },
   amountHint: {
     fontSize: 14,
-    color: '#6c757d',
     marginTop: 8,
   },
   tradeButton: {
-    backgroundColor: '#007AFF',
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 20,
     marginBottom: 20,
     alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
   },
   tradeButtonText: {
     fontSize: 18,
@@ -467,15 +432,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   positionCard: {
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   positionHeader: {
     flexDirection: 'row',
@@ -486,11 +445,9 @@ const styles = StyleSheet.create({
   positionPair: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   positionDetails: {
     fontSize: 14,
-    color: '#6c757d',
     marginTop: 2,
   },
   closeButton: {
@@ -505,28 +462,19 @@ const styles = StyleSheet.create({
   },
   positionStatLabel: {
     fontSize: 12,
-    color: '#6c757d',
     marginBottom: 2,
   },
   positionStatValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   noPositionsCard: {
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 40,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   noPositionsText: {
     fontSize: 16,
-    color: '#6c757d',
     marginTop: 12,
   },
   disconnectedCard: {
@@ -538,13 +486,11 @@ const styles = StyleSheet.create({
   disconnectedTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1a1a1a',
     marginTop: 20,
     marginBottom: 8,
   },
   disconnectedSubtitle: {
     fontSize: 16,
-    color: '#6c757d',
     textAlign: 'center',
     lineHeight: 22,
   },
