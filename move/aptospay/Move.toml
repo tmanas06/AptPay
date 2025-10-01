@@ -9,3 +9,6 @@ AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "
 [addresses]
 AptosPay = "0x1"
 aptospay = "0x1"
+
+[dev-addresses]
+# Test addresses for development
