@@ -34,7 +34,8 @@ const HomeScreen = ({ navigation }) => {
     checkWalletConnection,
     reconnectWallet,
     forceWalletRefresh,
-    refreshBalance
+    refreshBalance,
+    disconnectWallet
   } = useWallet();
 
   const { colors, typography, spacing, borderRadius, shadows } = useTheme();
@@ -181,6 +182,39 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleDisconnect = () => {
+    console.log('=== DISCONNECT BUTTON CLICKED ===');
+    console.log('Current connection state:', isConnected);
+    console.log('Current account:', account);
+    
+    Alert.alert(
+      'Disconnect Wallet',
+      'Are you sure you want to disconnect your wallet?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Disconnect',
+          style: 'destructive',
+          onPress: () => {
+            console.log('User confirmed disconnect, calling disconnectWallet...');
+            disconnectWallet()
+              .then(() => {
+                console.log('Disconnect completed, showing success alert');
+                Alert.alert('Success', 'Wallet disconnected successfully!');
+              })
+              .catch((err) => {
+                console.error('Disconnect error in HomeScreen:', err);
+                Alert.alert('Error', 'Failed to disconnect wallet. Please try again.');
+              });
+          },
+        },
+      ]
+    );
+  };
+
   const formatAddress = (address) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -193,20 +227,33 @@ const HomeScreen = ({ navigation }) => {
         <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
       }
     >
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.primary }]}>
-        <View style={styles.headerTop}>
-          <View style={styles.headerContent}>
-            <Text style={[styles.title, { color: colors.textInverse }]}>AptosPay</Text>
-            <Text style={[styles.subtitle, { color: colors.textInverse }]}>Aptos Devnet Wallet</Text>
-          </View>
-          <ThemeToggle size="small" showLabel={false} />
-        </View>
-        <View style={styles.networkBadge}>
-          <View style={styles.networkDot} />
-          <Text style={styles.networkText}>Devnet</Text>
-        </View>
-      </View>
+       {/* Header */}
+       <View style={[styles.header, { backgroundColor: colors.primary }]}>
+         <View style={styles.headerTop}>
+           <View style={styles.headerContent}>
+             <Text style={[styles.title, { color: colors.textInverse }]}>AptosPay</Text>
+             <Text style={[styles.subtitle, { color: colors.textInverse }]}>Aptos Devnet Wallet</Text>
+           </View>
+           <View style={styles.headerActions}>
+             {isConnected && (
+               <TouchableOpacity 
+                 style={styles.headerDisconnectButton}
+                 onPress={() => {
+                   console.log('Header disconnect button clicked');
+                   handleDisconnect();
+                 }}
+               >
+                 <Ionicons name="log-out-outline" size={20} color={colors.textInverse} />
+               </TouchableOpacity>
+             )}
+             <ThemeToggle size="small" showLabel={false} />
+           </View>
+         </View>
+         <View style={styles.networkBadge}>
+           <View style={styles.networkDot} />
+           <Text style={styles.networkText}>Devnet</Text>
+         </View>
+       </View>
 
       {!isConnected ? (
         <View style={styles.walletSection}>
@@ -239,20 +286,70 @@ const HomeScreen = ({ navigation }) => {
              <View style={styles.accountHeader}>
                <Ionicons name="person-circle" size={24} color={colors.primary} />
                <Text style={[styles.accountTitle, { color: colors.text }]}>Account</Text>
+               <TouchableOpacity 
+                 style={styles.disconnectButton}
+                 onPress={() => {
+                   console.log('Header disconnect button clicked');
+                   handleDisconnect();
+                 }}
+               >
+                 <Ionicons name="log-out-outline" size={20} color={colors.red} />
+               </TouchableOpacity>
              </View>
              <Text style={[styles.accountAddress, { color: colors.textSecondary }]}>
                {formatAddress(account?.accountAddress.toString())}
              </Text>
-             <TouchableOpacity 
-               style={styles.copyButton}
-               onPress={() => {
-                 navigator.clipboard?.writeText(account?.accountAddress.toString());
-                 Alert.alert('Copied', 'Address copied to clipboard');
-               }}
-             >
-               <Ionicons name="copy-outline" size={16} color={colors.primary} />
-               <Text style={[styles.copyText, { color: colors.primary }]}>Copy</Text>
-             </TouchableOpacity>
+             <View style={styles.walletInfo}>
+               <View style={[styles.walletBadge, { backgroundColor: colors.primary }]}>
+                 <Text style={[styles.walletBadgeText, { color: colors.textInverse }]}>
+                   {account?.wallet || 'Unknown'}
+                 </Text>
+               </View>
+               <Text style={[styles.walletStatus, { color: colors.green }]}>● Connected</Text>
+             </View>
+             <View style={styles.accountActions}>
+               <TouchableOpacity 
+                 style={styles.copyButton}
+                 onPress={() => {
+                   navigator.clipboard?.writeText(account?.accountAddress.toString());
+                   Alert.alert('Copied', 'Address copied to clipboard');
+                 }}
+               >
+                 <Ionicons name="copy-outline" size={16} color={colors.primary} />
+                 <Text style={[styles.copyText, { color: colors.primary }]}>Copy</Text>
+               </TouchableOpacity>
+               
+               <TouchableOpacity 
+                 style={[styles.disconnectButtonFull, { backgroundColor: colors.errorBackground }]}
+                 onPress={() => {
+                   console.log('Full disconnect button clicked');
+                   handleDisconnect();
+                 }}
+               >
+                 <Ionicons name="log-out-outline" size={16} color={colors.red} />
+                 <Text style={[styles.disconnectText, { color: colors.red }]}>Disconnect</Text>
+               </TouchableOpacity>
+               
+               {/* Test Direct Disconnect Button */}
+               <TouchableOpacity 
+                 style={[styles.disconnectButtonFull, { backgroundColor: colors.accent3, marginTop: 8 }]}
+                 onPress={() => {
+                   console.log('TEST: Direct disconnect call');
+                   disconnectWallet()
+                     .then(() => {
+                       console.log('TEST: Direct disconnect completed');
+                       Alert.alert('Test Success', 'Direct disconnect completed!');
+                     })
+                     .catch((err) => {
+                       console.error('TEST: Direct disconnect failed:', err);
+                       Alert.alert('Test Error', 'Direct disconnect failed: ' + err.message);
+                     });
+                 }}
+               >
+                 <Ionicons name="bug" size={16} color="white" />
+                 <Text style={[styles.disconnectText, { color: 'white' }]}>Test Disconnect</Text>
+               </TouchableOpacity>
+             </View>
            </View>
 
            {/* Main Features */}
@@ -609,15 +706,25 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
   },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  headerContent: {
-    flex: 1,
-  },
+   headerTop: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'flex-start',
+     marginBottom: 16,
+   },
+   headerContent: {
+     flex: 1,
+   },
+   headerActions: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     gap: 12,
+   },
+   headerDisconnectButton: {
+     padding: 8,
+     borderRadius: 8,
+     backgroundColor: 'rgba(255, 255, 255, 0.1)',
+   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -715,27 +822,68 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
   },
-  accountHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
+   accountHeader: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     justifyContent: 'space-between',
+     marginBottom: 12,
+   },
    accountTitle: {
      fontSize: 16,
      fontWeight: '600',
      marginLeft: 8,
+     flex: 1,
    },
    accountAddress: {
      fontSize: 16,
      fontFamily: 'monospace',
+     marginBottom: 8,
+   },
+   walletInfo: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     justifyContent: 'space-between',
      marginBottom: 12,
    },
-  copyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-  },
+   walletBadge: {
+     paddingHorizontal: 8,
+     paddingVertical: 4,
+     borderRadius: 12,
+   },
+   walletBadgeText: {
+     fontSize: 12,
+     fontWeight: '600',
+   },
+   walletStatus: {
+     fontSize: 12,
+     fontWeight: '500',
+   },
+   accountActions: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'center',
+   },
+   copyButton: {
+     flexDirection: 'row',
+     alignItems: 'center',
+   },
    copyText: {
+     fontSize: 14,
+     fontWeight: '500',
+     marginLeft: 4,
+   },
+   disconnectButton: {
+     padding: 8,
+     borderRadius: 8,
+   },
+   disconnectButtonFull: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     paddingHorizontal: 12,
+     paddingVertical: 8,
+     borderRadius: 8,
+   },
+   disconnectText: {
      fontSize: 14,
      fontWeight: '500',
      marginLeft: 4,

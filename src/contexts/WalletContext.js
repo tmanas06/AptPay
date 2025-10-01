@@ -301,18 +301,51 @@ export const AptosWalletProvider = ({ children }) => {
   };
 
   const disconnectWallet = async () => {
+    console.log('=== DISCONNECT WALLET DEBUG ===');
+    console.log('Current account:', account);
+    console.log('Wallet API available:', !!account?.walletApi);
+    console.log('Wallet type:', account?.wallet);
+    
     try {
       setLoading(true);
+      setError(null);
       
-      // Disconnect from wallet if API available
+      // Try to disconnect from wallet API first
       if (account?.walletApi) {
+        console.log('Attempting to disconnect from wallet API...');
+        
         try {
-          await account.walletApi.disconnect();
-        } catch (err) {
-          console.log('Wallet disconnect API failed:', err);
+          // Try the primary disconnect method
+          if (account.walletApi.disconnect) {
+            await account.walletApi.disconnect();
+            console.log('Wallet disconnected via primary API method');
+          } else {
+            console.log('Primary disconnect method not available');
+          }
+        } catch (apiErr) {
+          console.log('Primary disconnect method failed:', apiErr);
+          
+          // Try alternative methods for Petra
+          if (account.wallet === 'Petra') {
+            try {
+              if (window.aptos && window.aptos.disconnect) {
+                await window.aptos.disconnect();
+                console.log('Petra disconnected via window.aptos');
+              } else if (window.petra && window.petra.disconnect) {
+                await window.petra.disconnect();
+                console.log('Petra disconnected via window.petra');
+              }
+            } catch (altErr) {
+              console.log('Alternative disconnect methods failed:', altErr);
+            }
+          }
         }
       }
       
+      // Always clear app state regardless of wallet API success
+      console.log('Clearing app state...');
+      
+      // Clear React state
       setAccount(null);
       setBalance(0);
       setIsConnected(false);
@@ -321,9 +354,36 @@ export const AptosWalletProvider = ({ children }) => {
       
       // Clear localStorage
       if (typeof window !== 'undefined') {
+        console.log('Clearing localStorage...');
         localStorage.removeItem('aptospay_connected');
         localStorage.removeItem('aptospay_account_address');
         localStorage.removeItem('aptospay_wallet_name');
+        localStorage.removeItem('aptospay_wallet_type');
+        console.log('localStorage cleared');
+      }
+      
+      console.log('Wallet disconnect completed successfully');
+      
+    } catch (err) {
+      console.error('Disconnect wallet error:', err);
+      setError('Failed to disconnect wallet: ' + err.message);
+      
+      // Even if there's an error, try to clear state
+      try {
+        setAccount(null);
+        setBalance(0);
+        setIsConnected(false);
+        setWalletName(null);
+        
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('aptospay_connected');
+          localStorage.removeItem('aptospay_account_address');
+          localStorage.removeItem('aptospay_wallet_name');
+          localStorage.removeItem('aptospay_wallet_type');
+        }
+        console.log('State cleared despite error');
+      } catch (clearErr) {
+        console.error('Failed to clear state:', clearErr);
       }
     } finally {
       setLoading(false);
