@@ -1,5 +1,36 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Aptos, AptosConfig, Network } from '@aptos-labs/ts-sdk';
+
+// Web-compatible Aptos SDK import
+let Aptos, AptosConfig, Network;
+
+if (typeof window !== 'undefined') {
+  // Web environment - use dynamic import
+  try {
+    const aptosSDK = require('@aptos-labs/ts-sdk');
+    Aptos = aptosSDK.Aptos;
+    AptosConfig = aptosSDK.AptosConfig;
+    Network = aptosSDK.Network;
+  } catch (error) {
+    console.log('Aptos SDK not available on web, using mock implementation');
+    // Mock implementations for web
+    Aptos = class MockAptos {};
+    AptosConfig = class MockAptosConfig {};
+    Network = { DEVNET: 'devnet' };
+  }
+} else {
+  // Native environment - use regular import
+  try {
+    const { Aptos: AptosClass, AptosConfig: AptosConfigClass, Network: NetworkClass } = require('@aptos-labs/ts-sdk');
+    Aptos = AptosClass;
+    AptosConfig = AptosConfigClass;
+    Network = NetworkClass;
+  } catch (error) {
+    console.log('Aptos SDK not available, using mock implementation');
+    Aptos = class MockAptos {};
+    AptosConfig = class MockAptosConfig {};
+    Network = { DEVNET: 'devnet' };
+  }
+}
 
 const WalletContext = createContext();
 

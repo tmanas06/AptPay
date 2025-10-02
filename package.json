@@ -15,7 +15,9 @@
     "clear-cache": "expo start --clear",
     "deploy-contracts": "node scripts/deploy-contracts.js",
     "compile-contracts": "cd move/aptospay && aptos move compile --package-dir .",
-    "test-contracts": "cd move/aptospay && aptos move test --package-dir ."
+    "test-contracts": "cd move/aptospay && aptos move test --package-dir .",
+    "build:web": "node scripts/build-expo-web.js",
+    "vercel-build": "npm run build:web"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^5.0.0",

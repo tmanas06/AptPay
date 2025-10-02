@@ -4,7 +4,11 @@
     "slug": "aptospay-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [
       "**/*"
@@ -19,7 +23,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "webpack"
+      "bundler": "metro",
+      "name": "AptPay",
+      "shortName": "AptPay",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#007AFF",
+      "description": "Advanced DeFi trading platform on Aptos blockchain",
+      "dir": "ltr",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/",
+      "backgroundColor": "#f8f9fa"
     },
     "plugins": [
       "expo-camera",

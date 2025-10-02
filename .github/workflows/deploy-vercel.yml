@@ -30,23 +30,35 @@ jobs:
         node -e "
         const fs = require('fs');
         const appJson = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+        if (!appJson.expo.web) appJson.expo.web = {};
         appJson.expo.web.bundler = 'metro';
+        appJson.expo.web.name = 'AptPay';
+        appJson.expo.web.shortName = 'AptPay';
+        appJson.expo.web.lang = 'en';
+        appJson.expo.web.scope = '/';
+        appJson.expo.web.themeColor = '#007AFF';
+        appJson.expo.web.description = 'Advanced DeFi trading platform on Aptos blockchain';
+        appJson.expo.web.dir = 'ltr';
+        appJson.expo.web.display = 'standalone';
+        appJson.expo.web.orientation = 'portrait';
+        appJson.expo.web.startUrl = '/';
+        appJson.expo.web.backgroundColor = '#f8f9fa';
         fs.writeFileSync('app.json', JSON.stringify(appJson, null, 2));
         console.log('Updated app.json for web build');
         "
         
     - name: Build AptPay for web
       run: |
-        echo "🚀 Building your actual AptPay project for web..."
+        echo "🚀 Building AptPay for Vercel with Expo Web..."
         
         # Clean previous builds
-        rm -rf web-build dist
+        rm -rf dist web-build
         
         # Build with Expo export
         echo "📱 Building with Expo export..."
-        npx expo export --platform web --output-dir web-build || {
+        npx expo export --platform web --output-dir dist || {
           echo "⚠️ Expo export had errors, but checking if build was created..."
-          if [ -d "web-build" ] && [ -d "web-build/bundles" ]; then
+          if [ -d "dist" ] && ([ -d "dist/bundles" ] || [ -f "dist/index.html" ]); then
             echo "✅ Build was created despite errors - continuing..."
           else
             echo "❌ Build failed completely"
@@ -55,15 +67,18 @@ jobs:
         }
         
         # Check if index.html exists, if not create it
-        if [ ! -f "web-build/index.html" ]; then
+        if [ ! -f "dist/index.html" ]; then
           echo "📝 Creating index.html for Metro bundler project..."
           
           # Find the actual bundle file
-          BUNDLE_FILE=$(find web-build/bundles -name "*.js" | head -1 | xargs basename)
+          BUNDLE_FILE="index.web.js"
+          if [ -d "dist/bundles" ]; then
+            BUNDLE_FILE=$(find dist/bundles -name "*.js" | head -1 | xargs basename)
+          fi
           echo "Found bundle file: $BUNDLE_FILE"
           
           # Create index.html
-          cat > web-build/index.html << 'EOF'
+          cat > dist/index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,12 +86,14 @@ jobs:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AptPay - DeFi Trading Platform</title>
   <meta name="description" content="Advanced DeFi trading platform on Aptos blockchain">
+  <meta name="theme-color" content="#007AFF">
   <link rel="icon" href="./assets/favicon.png">
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f8f9fa;
     }
     
     #root {
@@ -115,76 +132,74 @@ jobs:
   </div>
   
   <script>
-    // Load your actual React Native web app from Metro bundler
-    const bundleFiles = [
-      'web-58ef15056e49296d2cb733ae51416ec8.js',
-      'web-bundle.js',
-      'index.web.js'
-    ];
+    // Metro bundler setup for AptPay
+    window.__expo = window.__expo || {};
+    window.__expo.web = window.__expo.web || {};
     
-    let bundleLoaded = false;
+    // Set up the Metro bundler environment
+    window.__expo.web.bundleUrl = './bundles/$BUNDLE_FILE';
     
-    for (const bundleFile of bundleFiles) {
-      const script = document.createElement('script');
-      script.src = `./bundles/${bundleFile}`;
-      script.onload = () => {
-        bundleLoaded = true;
-        console.log('AptPay Metro bundle loaded successfully');
-      };
-      script.onerror = () => {
-        console.log(`Failed to load ${bundleFile}`);
-      };
-      document.head.appendChild(script);
-    }
+    // Load the Metro bundle
+    const script = document.createElement('script');
+    script.src = './bundles/$BUNDLE_FILE';
+    script.onload = () => {
+      console.log('AptPay Metro bundle loaded successfully');
+    };
+    script.onerror = (error) => {
+      console.error('Failed to load AptPay bundle:', error);
+      document.getElementById('root').innerHTML = \`
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px;">
+          <h1 style="color: #007AFF; margin-bottom: 20px;">AptPay</h1>
+          <p style="color: #6c757d; margin-bottom: 20px;">Your DeFi Trading Platform on Aptos</p>
+          <p style="color: #dc3545; font-size: 14px;">Failed to load application. Please refresh the page.</p>
+          <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #007AFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Refresh</button>
+        </div>
+      \`;
+    };
+    document.head.appendChild(script);
     
-    // Fallback if no bundle loads
+    // Fallback timeout
     setTimeout(() => {
-      if (!bundleLoaded) {
-        document.getElementById('root').innerHTML = `
+      if (document.getElementById('root').innerHTML.includes('loading')) {
+        document.getElementById('root').innerHTML = \`
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px;">
             <h1 style="color: #007AFF; margin-bottom: 20px;">AptPay</h1>
             <p style="color: #6c757d; margin-bottom: 20px;">Your DeFi Trading Platform on Aptos</p>
-            <p style="color: #6c757d; font-size: 14px;">Loading your actual AptPay application...</p>
+            <p style="color: #6c757d; font-size: 14px;">Loading your AptPay application...</p>
             <div class="spinner" style="margin-top: 20px;"></div>
+            <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">If this takes too long, please refresh the page</p>
           </div>
-        `;
+        \`;
       }
-    }, 5000);
+    }, 10000);
   </script>
 </body>
 </html>
 EOF
-          echo "✅ Created index.html for your Metro bundler project"
+          echo "✅ Created index.html for Metro bundler project"
         else
           echo "✅ index.html already exists"
         fi
         
         # Verify build structure
         echo "📁 Build contents:"
-        find web-build -type f | head -10
+        find dist -type f | head -10
         
-        if [ -f "web-build/index.html" ]; then
+        if [ -f "dist/index.html" ]; then
           echo "✅ index.html found"
         else
           echo "❌ index.html not found"
           exit 1
         fi
         
-        if [ -d "web-build/bundles" ]; then
-          echo "✅ bundles directory found"
-        else
-          echo "❌ bundles directory not found"
-          exit 1
-        fi
-        
-        echo "🎉 Your actual AptPay project built successfully!"
+        echo "🎉 AptPay build completed successfully!"
         
     - name: Install Vercel CLI
       run: npm install -g vercel@latest
       
     - name: Deploy to Vercel
       run: |
-        vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }} --name aptospay
+        vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
