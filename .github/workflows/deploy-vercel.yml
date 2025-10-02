@@ -138,7 +138,11 @@ jobs:
           exit 1
         fi
         echo "🚀 Deploying to Vercel..."
-        vercel --prod --yes --token $VERCEL_TOKEN
+        echo "Project ID: $VERCEL_PROJECT_ID"
+        echo "Org ID: $VERCEL_ORG_ID"
+        
+        # Try deployment with explicit project and org
+        vercel --prod --yes --token $VERCEL_TOKEN --name aptospay
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
