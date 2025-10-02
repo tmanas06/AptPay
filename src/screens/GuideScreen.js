@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Image,
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -314,9 +315,17 @@ const GuideScreen = ({ navigation }) => {
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.primary }]}>
-        <Ionicons name="book" size={32} color="white" />
-        <Text style={styles.headerTitle}>User Guide</Text>
-        <Text style={styles.headerSubtitle}>Learn how to use AptPay</Text>
+        <View style={styles.headerContent}>
+          <Image 
+            source={require('../logo/aptpay_logo.png')} 
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>User Guide</Text>
+            <Text style={styles.headerSubtitle}>Learn how to use AptPay</Text>
+          </View>
+        </View>
       </View>
 
       {/* Guide Sections */}
@@ -419,6 +428,19 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 24,
     paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+  },
+  headerText: {
+    flex: 1,
     alignItems: 'center',
   },
   headerTitle: {

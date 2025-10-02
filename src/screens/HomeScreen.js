@@ -12,6 +12,7 @@ import {
   TextInput,
   Share,
   Clipboard,
+  Image,
 } from 'react-native';
 import { useWallet } from '../contexts/WalletContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -232,8 +233,17 @@ const HomeScreen = ({ navigation }) => {
        <View style={[styles.header, { backgroundColor: colors.primary }]}>
          <View style={styles.headerTop}>
            <View style={styles.headerContent}>
-             <Text style={[styles.title, { color: colors.textInverse }]}>AptosPay</Text>
-             <Text style={[styles.subtitle, { color: colors.textInverse }]}>Aptos Devnet Wallet</Text>
+             <View style={styles.logoContainer}>
+               <Image 
+                 source={require('../logo/aptpay_logo.png')} 
+                 style={styles.logo}
+                 resizeMode="contain"
+               />
+               <View style={styles.titleContainer}>
+                 <Text style={[styles.title, { color: colors.textInverse }]}>AptosPay</Text>
+                 <Text style={[styles.subtitle, { color: colors.textInverse }]}>Aptos Devnet Wallet</Text>
+               </View>
+             </View>
            </View>
            <View style={styles.headerActions}>
              {isConnected && (
@@ -259,7 +269,11 @@ const HomeScreen = ({ navigation }) => {
       {!isConnected ? (
         <View style={styles.walletSection}>
           <View style={[styles.walletCard, { backgroundColor: colors.surface, ...shadows.lg }]}>
-            <Ionicons name="wallet-outline" size={64} color={colors.primary} />
+            <Image 
+              source={require('../logo/aptpay_logo.png')} 
+              style={styles.walletLogo}
+              resizeMode="contain"
+            />
             <Text style={[styles.walletTitle, { color: colors.text }]}>Connect Your Wallet</Text>
             <Text style={[styles.walletSubtitle, { color: colors.textSecondary }]}>
               Connect to start using AptosPay on devnet
@@ -716,6 +730,18 @@ const styles = StyleSheet.create({
    headerContent: {
      flex: 1,
    },
+   logoContainer: {
+     flexDirection: 'row',
+     alignItems: 'center',
+   },
+   logo: {
+     width: 40,
+     height: 40,
+     marginRight: 12,
+   },
+   titleContainer: {
+     flex: 1,
+   },
    headerActions: {
      flexDirection: 'row',
      alignItems: 'center',
@@ -769,6 +795,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     maxWidth: 350,
+  },
+  walletLogo: {
+    width: 80,
+    height: 80,
+    marginBottom: 20,
   },
   walletTitle: {
     fontSize: 24,
