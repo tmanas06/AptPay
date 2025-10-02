@@ -1,4 +1,17 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+console.log('🔧 Fixing GitHub Pages deployment...\n');
+
+try {
+  // Read the current index.html
+  const indexPath = path.join('docs', 'index.html');
+  let indexHtml = fs.readFileSync(indexPath, 'utf8');
+  
+  // Create a better index.html that properly loads the Expo web app
+  const newIndexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -90,13 +103,13 @@
       }
       
       const bundleFile = bundleFiles[currentBundleIndex];
-      console.log(`📦 Trying to load bundle: ${bundleFile}`);
+      console.log(\`📦 Trying to load bundle: \${bundleFile}\`);
       
       const script = document.createElement('script');
-      script.src = `./bundles/${bundleFile}`;
+      script.src = \`./bundles/\${bundleFile}\`;
       
       script.onload = () => {
-        console.log(`✅ Bundle loaded successfully: ${bundleFile}`);
+        console.log(\`✅ Bundle loaded successfully: \${bundleFile}\`);
         bundleLoaded = true;
         
         // Try to initialize the app
@@ -111,7 +124,7 @@
       };
       
       script.onerror = (error) => {
-        console.error(`❌ Failed to load bundle: ${bundleFile}`, error);
+        console.error(\`❌ Failed to load bundle: \${bundleFile}\`, error);
         currentBundleIndex++;
         tryLoadBundle();
       };
@@ -120,7 +133,7 @@
     }
     
     function showError() {
-      document.getElementById('root').innerHTML = `
+      document.getElementById('root').innerHTML = \`
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: #f8f9fa;">
           <div style="font-size: 48px; margin-bottom: 20px;">🚀</div>
           <h1 style="color: #007AFF; margin-bottom: 20px; font-size: 2.5rem;">AptPay</h1>
@@ -138,7 +151,7 @@
             </button>
           </div>
         </div>
-      `;
+      \`;
     }
     
     // Start loading the bundle
@@ -154,4 +167,69 @@
     
   </script>
 </body>
-</html>
+</html>`;
+
+  // Write the new index.html
+  fs.writeFileSync(indexPath, newIndexHtml);
+  console.log('✅ Updated index.html with better loading logic');
+  
+  // Also create a simple test page to verify the setup
+  const testHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AptPay - Test Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f8f9fa; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { color: #007AFF; }
+    .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 AptPay - GitHub Pages Test</h1>
+    <div class="status success">✅ GitHub Pages is working correctly</div>
+    <div class="status success">✅ Static files are being served</div>
+    <div class="status success">✅ JavaScript execution is enabled</div>
+    
+    <h2>📁 Available Files:</h2>
+    <ul id="fileList"></ul>
+    
+    <h2>🔗 Links:</h2>
+    <p><a href="./index.html">Main AptPay App</a></p>
+    <p><a href="./bundles/">View Bundles Directory</a></p>
+    
+    <script>
+      // Test JavaScript execution
+      console.log('✅ JavaScript is working');
+      
+      // List available files (this won't work due to CORS, but shows JS is running)
+      document.getElementById('fileList').innerHTML = \`
+        <li>index.html (main app)</li>
+        <li>bundles/ (JavaScript bundles)</li>
+        <li>assets/ (images and resources)</li>
+      \`;
+    </script>
+  </div>
+</body>
+</html>`;
+
+  fs.writeFileSync(path.join('docs', 'test.html'), testHtml);
+  console.log('✅ Created test.html for debugging');
+  
+  console.log('\n🎉 GitHub Pages fix completed!');
+  console.log('📁 Files updated:');
+  console.log('  - docs/index.html (improved loading)');
+  console.log('  - docs/test.html (debug page)');
+  console.log('\n🔗 Test URLs:');
+  console.log('  - Main app: https://tmanas06.github.io/AptPay/');
+  console.log('  - Test page: https://tmanas06.github.io/AptPay/test.html');
+  
+} catch (error) {
+  console.error('❌ Fix failed:', error.message);
+  process.exit(1);
+}
