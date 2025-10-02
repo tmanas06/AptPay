@@ -34,7 +34,9 @@
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/",
-      "backgroundColor": "#f8f9fa"
+      "backgroundColor": "#f8f9fa",
+      "output": "static",
+      "publicPath": "./"
     },
     "plugins": [
       "expo-camera",

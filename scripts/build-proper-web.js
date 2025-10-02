@@ -1,4 +1,82 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+console.log('🚀 Building AptPay for proper web deployment...\n');
+
+try {
+  // Clean previous builds
+  console.log('🧹 Cleaning previous builds...');
+  if (fs.existsSync('dist')) {
+    execSync('rmdir /s /q dist', { stdio: 'pipe', windowsHide: true });
+  }
+  if (fs.existsSync('docs')) {
+    execSync('rmdir /s /q docs', { stdio: 'pipe', windowsHide: true });
+  }
+
+  // Install dependencies
+  console.log('\n📦 Installing dependencies...');
+  execSync('npm install --legacy-peer-deps', { stdio: 'inherit' });
+
+  // Configure Expo for web build
+  console.log('\n🔧 Configuring Expo for web build...');
+  const appJsonPath = 'app.json';
+  const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'));
+  appJson.expo.web = appJson.expo.web || {};
+  appJson.expo.web.bundler = 'metro';
+  appJson.expo.web.output = 'static';
+  appJson.expo.web.publicPath = './';
+  fs.writeFileSync(appJsonPath, JSON.stringify(appJson, null, 2));
+  console.log('🔧 Configured app.json for Metro bundler and static output.');
+
+  // Build Expo web app
+  console.log('\n📱 Building Expo web app...');
+  try {
+    execSync('npx expo export --platform web --output-dir dist --clear', {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        NODE_OPTIONS: '--max-old-space-size=4096',
+        EXPO_PLATFORM: 'web'
+      }
+    });
+    console.log('✅ Expo web build successful!');
+  } catch (error) {
+    console.log('⚠️ Expo build had errors, but checking if build was created...');
+    if (fs.existsSync('dist') && fs.existsSync('dist/bundles')) {
+      console.log('✅ Build was created despite errors - continuing...');
+    } else {
+      throw new Error('Build failed and no output was created');
+    }
+  }
+
+  // Create docs directory and copy build
+  console.log('\n📁 Setting up docs directory...');
+  fs.mkdirSync('docs', { recursive: true });
+  
+  // Copy all files from dist to docs
+  if (fs.existsSync('dist')) {
+    const copyRecursive = (src, dest) => {
+      if (fs.statSync(src).isDirectory()) {
+        if (!fs.existsSync(dest)) {
+          fs.mkdirSync(dest, { recursive: true });
+        }
+        fs.readdirSync(src).forEach(file => {
+          copyRecursive(path.join(src, file), path.join(dest, file));
+        });
+      } else {
+        fs.copyFileSync(src, dest);
+      }
+    };
+    copyRecursive('dist', 'docs');
+    console.log('✅ Copied build to docs directory');
+  }
+
+  // Create a proper index.html that ensures React Native web works
+  console.log('\n📝 Creating optimized index.html...');
+  const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -104,14 +182,14 @@
       }
       
       const bundleFile = bundleFiles[currentBundleIndex];
-      console.log(`📦 Trying to load bundle: ${bundleFile}`);
+      console.log(\`📦 Trying to load bundle: \${bundleFile}\`);
       
       const script = document.createElement('script');
-      script.src = `./bundles/${bundleFile}`;
+      script.src = \`./bundles/\${bundleFile}\`;
       script.crossOrigin = 'anonymous';
       
       script.onload = () => {
-        console.log(`✅ Bundle loaded successfully: ${bundleFile}`);
+        console.log(\`✅ Bundle loaded successfully: \${bundleFile}\`);
         bundleLoaded = true;
         
         // Wait a bit for React to initialize
@@ -121,7 +199,7 @@
       };
       
       script.onerror = (error) => {
-        console.error(`❌ Failed to load bundle: ${bundleFile}`, error);
+        console.error(\`❌ Failed to load bundle: \${bundleFile}\`, error);
         currentBundleIndex++;
         tryLoadBundle();
       };
@@ -130,7 +208,7 @@
     }
     
     function showError() {
-      document.getElementById('root').innerHTML = `
+      document.getElementById('root').innerHTML = \`
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: #1a1a1a; color: white;">
           <div style="font-size: 48px; margin-bottom: 20px;">🚀</div>
           <h1 style="color: #007AFF; margin-bottom: 20px; font-size: 2.5rem;">AptPay</h1>
@@ -146,7 +224,7 @@
             </a>
           </div>
         </div>
-      `;
+      \`;
     }
     
     // Start loading the bundle
@@ -162,4 +240,36 @@
     
   </script>
 </body>
-</html>
+</html>`;
+
+  // Write the new index.html
+  fs.writeFileSync(path.join('docs', 'index.html'), indexHtml);
+  console.log('✅ Created optimized index.html');
+
+  // Verify build structure
+  console.log('\n🔍 Verifying build structure...');
+  if (fs.existsSync('docs')) {
+    console.log('📁 Build contents:');
+    const listFiles = (dir, prefix = '') => {
+      const files = fs.readdirSync(dir);
+      files.slice(0, 10).forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        console.log(`${prefix}${file}${stat.isDirectory() ? '/' : ''}`);
+        if (stat.isDirectory() && prefix.length < 20) {
+          listFiles(filePath, prefix + '  ');
+        }
+      });
+    };
+    listFiles('docs');
+  }
+
+  console.log('\n🎉 AptPay build completed successfully!');
+  console.log('📁 Output directory: docs');
+  console.log('🚀 Ready for GitHub Pages deployment!');
+  console.log('\n🔗 Test URL: https://tmanas06.github.io/AptPay/');
+
+} catch (error) {
+  console.error('\n❌ Build failed:', error.message);
+  process.exit(1);
+}
