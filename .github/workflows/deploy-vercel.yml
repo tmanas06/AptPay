@@ -77,105 +77,39 @@ jobs:
           fi
           echo "Found bundle file: $BUNDLE_FILE"
           
-          # Create index.html
-          cat > dist/index.html << 'EOF'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AptPay - DeFi Trading Platform</title>
-  <meta name="description" content="Advanced DeFi trading platform on Aptos blockchain">
-  <meta name="theme-color" content="#007AFF">
-  <link rel="icon" href="./assets/favicon.png">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      background: #f8f9fa;
-    }
-    
-    #root {
-      width: 100%;
-      height: 100vh;
-    }
-    
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f8f9fa;
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e9ecef;
-      border-top: 4px solid #007AFF;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body>
-  <div id="root">
-    <div class="loading">
-      <div class="spinner"></div>
-    </div>
-  </div>
-  
-  <script>
-    // Metro bundler setup for AptPay
-    window.__expo = window.__expo || {};
-    window.__expo.web = window.__expo.web || {};
-    
-    // Set up the Metro bundler environment
-    window.__expo.web.bundleUrl = './bundles/$BUNDLE_FILE';
-    
-    // Load the Metro bundle
-    const script = document.createElement('script');
-    script.src = './bundles/$BUNDLE_FILE';
-    script.onload = () => {
-      console.log('AptPay Metro bundle loaded successfully');
-    };
-    script.onerror = (error) => {
-      console.error('Failed to load AptPay bundle:', error);
-      document.getElementById('root').innerHTML = \`
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px;">
-          <h1 style="color: #007AFF; margin-bottom: 20px;">AptPay</h1>
-          <p style="color: #6c757d; margin-bottom: 20px;">Your DeFi Trading Platform on Aptos</p>
-          <p style="color: #dc3545; font-size: 14px;">Failed to load application. Please refresh the page.</p>
-          <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #007AFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Refresh</button>
-        </div>
-      \`;
-    };
-    document.head.appendChild(script);
-    
-    // Fallback timeout
-    setTimeout(() => {
-      if (document.getElementById('root').innerHTML.includes('loading')) {
-        document.getElementById('root').innerHTML = \`
-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px;">
-            <h1 style="color: #007AFF; margin-bottom: 20px;">AptPay</h1>
-            <p style="color: #6c757d; margin-bottom: 20px;">Your DeFi Trading Platform on Aptos</p>
-            <p style="color: #6c757d; font-size: 14px;">Loading your AptPay application...</p>
-            <div class="spinner" style="margin-top: 20px;"></div>
-            <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">If this takes too long, please refresh the page</p>
-          </div>
-        \`;
-      }
-    }, 10000);
-  </script>
-</body>
-</html>
-EOF
+          # Create index.html using echo commands to avoid YAML issues
+          echo '<!DOCTYPE html>' > dist/index.html
+          echo '<html lang="en">' >> dist/index.html
+          echo '<head>' >> dist/index.html
+          echo '  <meta charset="utf-8">' >> dist/index.html
+          echo '  <meta name="viewport" content="width=device-width, initial-scale=1">' >> dist/index.html
+          echo '  <title>AptPay - DeFi Trading Platform</title>' >> dist/index.html
+          echo '  <meta name="description" content="Advanced DeFi trading platform on Aptos blockchain">' >> dist/index.html
+          echo '  <meta name="theme-color" content="#007AFF">' >> dist/index.html
+          echo '  <link rel="icon" href="./assets/favicon.png">' >> dist/index.html
+          echo '  <style>' >> dist/index.html
+          echo '    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif; background: #f8f9fa; }' >> dist/index.html
+          echo '    #root { width: 100%; height: 100vh; }' >> dist/index.html
+          echo '    .loading { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa; }' >> dist/index.html
+          echo '    .spinner { width: 40px; height: 40px; border: 4px solid #e9ecef; border-top: 4px solid #007AFF; border-radius: 50%; animation: spin 1s linear infinite; }' >> dist/index.html
+          echo '    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }' >> dist/index.html
+          echo '  </style>' >> dist/index.html
+          echo '</head>' >> dist/index.html
+          echo '<body>' >> dist/index.html
+          echo '  <div id="root"><div class="loading"><div class="spinner"></div></div></div>' >> dist/index.html
+          echo '  <script>' >> dist/index.html
+          echo '    window.__expo = window.__expo || {};' >> dist/index.html
+          echo '    window.__expo.web = window.__expo.web || {};' >> dist/index.html
+          echo "    window.__expo.web.bundleUrl = './bundles/$BUNDLE_FILE';" >> dist/index.html
+          echo '    const script = document.createElement("script");' >> dist/index.html
+          echo "    script.src = './bundles/$BUNDLE_FILE';" >> dist/index.html
+          echo '    script.onload = () => console.log("AptPay Metro bundle loaded successfully");' >> dist/index.html
+          echo '    script.onerror = () => document.getElementById("root").innerHTML = "<div style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px;\"><h1 style=\"color: #007AFF; margin-bottom: 20px;\">AptPay</h1><p style=\"color: #6c757d; margin-bottom: 20px;\">Your DeFi Trading Platform on Aptos</p><p style=\"color: #dc3545; font-size: 14px;\">Failed to load application. Please refresh the page.</p><button onclick=\"window.location.reload()\" style=\"margin-top: 20px; padding: 10px 20px; background: #007AFF; color: white; border: none; border-radius: 5px; cursor: pointer;\">Refresh</button></div>";' >> dist/index.html
+          echo '    document.head.appendChild(script);' >> dist/index.html
+          echo '  </script>' >> dist/index.html
+          echo '</body>' >> dist/index.html
+          echo '</html>' >> dist/index.html
+          
           echo "✅ Created index.html for Metro bundler project"
         else
           echo "✅ index.html already exists"
