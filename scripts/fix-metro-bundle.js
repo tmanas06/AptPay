@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+console.log('🔧 Fixing Metro bundle for GitHub Pages...\n');
+
+try {
+  // Read the current bundle file
+  const bundlePath = path.join('docs', 'bundles', 'web-f09e6bf89769e2662126a47766365b5f.js');
+  
+  if (fs.existsSync(bundlePath)) {
+    let bundleContent = fs.readFileSync(bundlePath, 'utf8');
+    
+    // Fix asset paths in the bundle
+    bundleContent = bundleContent.replace(
+      /require\("\.\/assets\//g,
+      'require("./assets/'
+    );
+    
+    bundleContent = bundleContent.replace(
+      /require\("\.\/src\//g,
+      'require("./src/'
+    );
+    
+    // Fix font paths
+    bundleContent = bundleContent.replace(
+      /Ionicons\.ttf/g,
+      './fonts/Ionicons.ttf'
+    );
+    
+    // Write the fixed bundle
+    fs.writeFileSync(bundlePath, bundleContent);
+    console.log('✅ Fixed asset paths in Metro bundle');
+  } else {
+    console.log('⚠️ Bundle file not found, skipping bundle fixes');
+  }
+  
+  // Create a better index.html that handles the Metro bundler properly
+  const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -107,7 +146,7 @@
     
     script.onerror = (error) => {
       console.error('❌ Failed to load AptPay bundle:', error);
-      document.getElementById('root').innerHTML = `
+      document.getElementById('root').innerHTML = \`
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: #f8f9fa;">
           <div style="font-size: 48px; margin-bottom: 20px;">🚀</div>
           <h1 style="color: #007AFF; margin-bottom: 20px; font-size: 2.5rem;">AptPay</h1>
@@ -128,7 +167,7 @@
             </a>
           </div>
         </div>
-      `;
+      \`;
     };
     
     document.head.appendChild(script);
@@ -138,7 +177,7 @@
       const root = document.getElementById('root');
       if (root && root.innerHTML.includes('loading')) {
         console.log('⏰ App loading timeout, showing fallback');
-        root.innerHTML = `
+        root.innerHTML = \`
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: #f8f9fa;">
             <div style="font-size: 48px; margin-bottom: 20px;">🚀</div>
             <h1 style="color: #007AFF; margin-bottom: 20px; font-size: 2.5rem;">AptPay</h1>
@@ -159,10 +198,25 @@
               </a>
             </div>
           </div>
-        `;
+        \`;
       }
     }, 20000);
     
   </script>
 </body>
-</html>
+</html>`;
+
+  // Write the new index.html
+  fs.writeFileSync(path.join('docs', 'index.html'), indexHtml);
+  console.log('✅ Updated index.html with better Metro bundler support');
+  
+  console.log('\n🎉 Metro bundle fix completed!');
+  console.log('📁 Files updated:');
+  console.log('  - docs/index.html (improved Metro bundler loading)');
+  console.log('  - docs/bundles/web-f09e6bf89769e2662126a47766365b5f.js (fixed asset paths)');
+  console.log('\n🔗 Test URL: https://tmanas06.github.io/AptPay/');
+  
+} catch (error) {
+  console.error('❌ Fix failed:', error.message);
+  process.exit(1);
+}
