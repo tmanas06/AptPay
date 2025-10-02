@@ -133,7 +133,12 @@ jobs:
       
     - name: Deploy to Vercel
       run: |
-        vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
+        if [ -z "$VERCEL_TOKEN" ]; then
+          echo "❌ VERCEL_TOKEN is not set. Please add it to GitHub Secrets."
+          exit 1
+        fi
+        echo "🚀 Deploying to Vercel..."
+        vercel --prod --yes --token $VERCEL_TOKEN
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
