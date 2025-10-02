@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AptPay - DeFi Trading Platform</title>
+  <meta name="description" content="Advanced DeFi trading platform on Aptos blockchain">
+  <meta name="theme-color" content="#007AFF">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f8f9fa;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      border-radius: 20px;
+    }
+    
+    h1 {
+      color: #007AFF;
+      margin-bottom: 10px;
+      font-size: 2.5rem;
+    }
+    
+    p {
+      color: #6c757d;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e9ecef;
+      border-top: 4px solid #007AFF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .deploy-info {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      max-width: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🚀</div>
+    <h1>AptPay</h1>
+    <p>Advanced DeFi Trading Platform on Aptos</p>
+    
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>Setting up GitHub Pages deployment...</span>
+    </div>
+    
+    <div class="deploy-info">
+      <h3>🚀 Deployment in Progress</h3>
+      <p>Your AptPay React Native app is being deployed to GitHub Pages. This will take a few minutes.</p>
+      <p><strong>Features:</strong></p>
+      <ul style="text-align: left; color: #6c757d;">
+        <li>✅ Metro Bundler for React Native web</li>
+        <li>✅ Your complete AptPay project</li>
+        <li>✅ All your DeFi features</li>
+        <li>✅ Your AptPay logo integration</li>
+        <li>✅ Dark/Light theme support</li>
+      </ul>
+      <p style="margin-top: 15px; font-size: 0.9rem; color: #6c757d;">
+        Once deployed, you can import this to Vercel or use it directly on GitHub Pages.
+      </p>
+    </div>
+  </div>
+  
+  <script>
+    // Auto-refresh to check for deployment
+    setTimeout(() => {
+      window.location.reload();
+    }, 30000); // Refresh every 30 seconds
+  </script>
+</body>
+</html>
