@@ -13,6 +13,15 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "assetBundlePatternsWeb": [
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.gif",
+      "**/*.svg",
+      "**/*.webp",
+      "**/*.ico"
+    ],
     "ios": {
       "supportsTablet": true
     },
